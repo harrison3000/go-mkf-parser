@@ -14,7 +14,7 @@ test
     "wow"
 
 tost
-    'a'
+	'a'
 `)
 	if e != nil {
 		t.Fatal("Error:", e)

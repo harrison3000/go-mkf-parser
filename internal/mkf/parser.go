@@ -14,7 +14,7 @@ import (
 var (
 	comment  = regexp.MustCompile(`^\s*\/\/.*$`)
 	ruleName = regexp.MustCompile(`^([a-zA-Z_]+)`)
-	ident    = regexp.MustCompile(`^ {4}`)
+	ident    = regexp.MustCompile(`^( {4}|\t)`)
 )
 
 // NewParser returns a new parser... or maybe not
@@ -54,12 +54,12 @@ func NewParser(grammar string) (*Parser, error) {
 			continue
 		}
 
-		if ident.MatchString(v) {
+		if _, rest, ok := consumeRegex(v, ident); ok {
 			if curr.name == "" {
-				return nil, fmt.Errorf("alternative without a name on line %d", k)
+				return nil, fmt.Errorf("orphaned alternative on line %d", k)
 			}
 
-			alt, err := str2alt(v[4:], len(curr.alt) == 0)
+			alt, err := str2alt(rest, len(curr.alt) == 0)
 			if err != nil {
 				return nil, fmt.Errorf("error parsing alternative at line %d: %w", k, err)
 			}
