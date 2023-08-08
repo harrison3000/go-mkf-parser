@@ -11,23 +11,14 @@ import (
 	"strings"
 )
 
-type Parser struct {
-	rules []rule
-}
-
-type rule struct {
-	name string
-	alt  []matcher
-}
-
-type matcher string
-
 var (
 	comment  = regexp.MustCompile(`^\s*\/\/.*$`)
 	ruleName = regexp.MustCompile(`^([a-zA-Z_]+)\s*(\/\/.*)?$`)
 	ident    = regexp.MustCompile(`^ {4}`)
 )
 
+// NewParser returns a new parser... or maybe not
+// it accepts a grammar in a modified McKeeman Form
 func NewParser(grammar string) (*Parser, error) {
 	lines := strings.Split(grammar, "\n")
 
@@ -68,7 +59,7 @@ func NewParser(grammar string) (*Parser, error) {
 				return nil, fmt.Errorf("alternative without a name on line %d", k)
 			}
 
-			curr.alt = append(curr.alt, str2matcher(v[4:]))
+			curr.alt = append(curr.alt, str2alt(v[4:]))
 			continue
 		}
 		return nil, fmt.Errorf("didn't understand line %d", k)
@@ -81,8 +72,7 @@ func NewParser(grammar string) (*Parser, error) {
 	}, nil
 }
 
-func str2matcher(s string) matcher {
+func str2alt(s string) alternative {
 	//TODO implement
-	var m matcher
-	return m
+	return nil
 }
