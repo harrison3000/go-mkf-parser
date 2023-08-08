@@ -76,47 +76,6 @@ func NewParser(grammar string) (*Parser, error) {
 	}, nil
 }
 
-// matcher typers
-var (
-	literal    = regexp.MustCompile(`^"([^"]*)"`)
-	singleRune = regexp.MustCompile(`^'(.)'`)
-	simpleHex  = regexp.MustCompile(`^'([0-9A-F]{4,5})'`)
-	tenHex     = regexp.MustCompile(`^'(10[0-9A-F]{4})'`)
-)
-
-func str2alt(s string, allowEmpty bool) (alternative, error) {
-	hpf := func(pref string) bool {
-		return strings.HasPrefix(s, pref)
-	}
-
-	if hpf(`""`) {
-		if !allowEmpty {
-			return nil, fmt.Errorf("empty not allowed here")
-		}
-		if !isEmptyOrComment(s[2:]) {
-			return nil, fmt.Errorf("empty must be alone")
-		}
-		return alternative{
-			matcher{typ: mtEmpty},
-		}, nil
-	}
-
-	for {
-		if isEmptyOrComment(s) {
-			break
-		}
-		if hpf(`""`) {
-			return nil, fmt.Errorf("empty not allowed here")
-		}
-
-		return nil, nil
-	}
-
-	//TODO disallow empty alternative
-
-	return nil, nil
-}
-
 func isEmptyOrComment(s string) bool {
 	if strings.TrimSpace(s) == "" {
 		return true
