@@ -78,10 +78,10 @@ func NewParser(grammar string) (*Parser, error) {
 
 // matcher typers
 var (
-	literal    = regexp.MustCompile(`^"[^"]*"`)
-	singleRune = regexp.MustCompile(`^'.'`)
-	simpleHex  = regexp.MustCompile(`^'[0-9A-F]{4,5}'`)
-	tenHex     = regexp.MustCompile(`^'10[0-9A-F]{4}'`)
+	literal    = regexp.MustCompile(`^"([^"]*)"`)
+	singleRune = regexp.MustCompile(`^'(.)'`)
+	simpleHex  = regexp.MustCompile(`^'([0-9A-F]{4,5})'`)
+	tenHex     = regexp.MustCompile(`^'(10[0-9A-F]{4})'`)
 )
 
 func str2alt(s string, allowEmpty bool) (alternative, error) {
