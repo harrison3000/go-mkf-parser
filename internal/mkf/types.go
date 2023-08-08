@@ -18,12 +18,16 @@ type alternative []matcher
 
 type matcher struct {
 	typ matcherType
+	lit string
+	r   rune
 }
 
 type matcherType int8
 
 const (
-	mtLiteral matcherType = iota
+	mtInvalid matcherType = iota
+	mtLiteral
+	mtEmpty
 	mtRune
 	mtSimpleRange
 	mtRegex
