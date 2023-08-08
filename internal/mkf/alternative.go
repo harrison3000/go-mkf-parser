@@ -8,6 +8,7 @@ package mkf
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -38,6 +39,7 @@ const (
 type altToken struct {
 	typ tokensTy
 	val string
+	r   rune
 }
 
 func str2alt(s string, allowEmpty bool) (alternative, error) {
@@ -51,10 +53,12 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 		}, nil
 	}
 
-	for _, v := range tks {
+	for k := range tks {
+		v := &tks[k]
 		if v.typ == tkEmpty {
 			return nil, fmt.Errorf("unallowed empty found")
 		}
+		v.convertRune()
 	}
 
 	_ = tks
@@ -103,4 +107,20 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 	}
 
 	return nil, fmt.Errorf("alternative too big")
+}
+
+func (tk *altToken) convertRune() {
+	if tk.typ != tkSingleton {
+		return
+	}
+	s := tk.val
+	tk.val = ""
+
+	rn := []rune(s)
+	if len(rn) == 1 {
+		tk.r = rn[0]
+		return
+	}
+	num, _ := strconv.ParseInt(s, 16, 0)
+	tk.r = rune(num)
 }
