@@ -20,6 +20,7 @@ var (
 	tenHex     = regexp.MustCompile(`^'(10[0-9A-F]{4})'`)
 	regdot     = regexp.MustCompile(`^(\.)`)
 	regminus   = regexp.MustCompile(`^(-)`)
+	regReg     = regexp.MustCompile(`^/((\\/|[^/])*)/`)
 )
 
 type tokensTy int
@@ -31,6 +32,7 @@ const (
 	tkSingleton
 	tkDot
 	tkMinus
+	tkRegex
 )
 
 type altToken struct {
@@ -89,6 +91,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 		consume(tenHex, tkSingleton)
 		consume(regdot, tkDot)
 		consume(regminus, tkMinus)
+		consume(regReg, tkRegex)
 
 		if isEmptyOrComment(s) && found {
 			return tks, nil
