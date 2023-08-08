@@ -76,6 +76,14 @@ func NewParser(grammar string) (*Parser, error) {
 	}, nil
 }
 
+// matcher typers
+var (
+	literal    = regexp.MustCompile(`^"[^"]*"`)
+	singleRune = regexp.MustCompile(`^'.'`)
+	simpleHex  = regexp.MustCompile(`^'[0-9A-F]{4,5}'`)
+	tenHex     = regexp.MustCompile(`^'10[0-9A-F]{4}'`)
+)
+
 func str2alt(s string, allowEmpty bool) (alternative, error) {
 	hpf := func(pref string) bool {
 		return strings.HasPrefix(s, pref)
@@ -94,6 +102,9 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 	}
 
 	for {
+		if isEmptyOrComment(s) {
+			break
+		}
 		if hpf(`""`) {
 			return nil, fmt.Errorf("empty not allowed here")
 		}
@@ -101,6 +112,9 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 		return nil, nil
 	}
 
+	//TODO disallow empty alternative
+
+	return nil, nil
 }
 
 func isEmptyOrComment(s string) bool {
