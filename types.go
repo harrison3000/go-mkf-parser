@@ -14,9 +14,9 @@ type rule struct {
 	alt  []alternative
 }
 
-type alternative []matcher
+type alternative []item
 
-type matcher struct {
+type item struct {
 	typ matcherType
 	lit string
 	r   rune

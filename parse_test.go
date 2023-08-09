@@ -46,12 +46,12 @@ func TestS2A(t *testing.T) {
 	if e != nil {
 		t.Fatal("error")
 	}
-	mtExp := matcher{typ: mtLiteral, lit: "hello"}
+	mtExp := item{typ: mtLiteral, lit: "hello"}
 	if alt[0] != mtExp {
 		t.Fatal("didn't parse literal")
 	}
 
-	mtExp = matcher{typ: mtRune, r: 'a'}
+	mtExp = item{typ: mtRune, r: 'a'}
 	if alt[1] != mtExp {
 		t.Fatal("didn't parse rune")
 	}

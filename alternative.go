@@ -50,7 +50,7 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 	}
 	if allowEmpty && len(tks) == 1 && tks[0].typ == tkEmpty {
 		return alternative{
-			matcher{typ: mtEmpty},
+			item{typ: mtEmpty},
 		}, nil
 	}
 
