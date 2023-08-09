@@ -27,7 +27,7 @@ tost
 }
 
 func TestS2ATypes(t *testing.T) {
-	doTest := func(alt string, allowEmpty bool, types ...matcherType) {
+	doTest := func(alt string, allowEmpty bool, types ...itemType) {
 		res, e := str2alt(alt, allowEmpty)
 		if e != nil {
 			t.Errorf("Error parsing alternative: %s", e)
@@ -43,12 +43,12 @@ func TestS2ATypes(t *testing.T) {
 		}
 	}
 
-	doTest(`"" //comment`, true, mtEmpty)
+	doTest(`"" //comment`, true, itemEmpty)
 
 	doTest(`"hello" 'a' 'f' . 't'`, false,
-		mtLiteral,
-		mtRune,
-		mtSimpleRange,
+		itemLiteral,
+		itemRune,
+		itemSimpleRange,
 	)
 
 	_, e := str2alt(`"hello" ""`, false)

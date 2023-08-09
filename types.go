@@ -18,20 +18,20 @@ type rule struct {
 type alternative []item
 
 type item struct {
-	typ matcherType
+	typ itemType
 	lit string
 	r   rune
 }
 
-type matcherType int8
+type itemType int8
 
 const (
-	mtInvalid matcherType = iota
-	mtLiteral
-	mtEmpty
-	mtRune
-	mtSimpleRange
-	mtRegex
+	itemInvalid itemType = iota
+	itemLiteral
+	itemEmpty
+	itemRune
+	itemSimpleRange
+	itemRegex
 )
 
 type grammarParseError struct {
