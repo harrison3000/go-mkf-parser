@@ -69,43 +69,45 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 }
 
 func tokenizeAlternative(s string) ([]altToken, error) {
+	lenOrig := len(s)
 	var tks []altToken
-	var found bool
 
-	consume := func(regex *regexp.Regexp, typ tokensTy) {
+	consume := func(regex *regexp.Regexp, typ tokensTy) bool {
 		res := regex.FindAllStringSubmatch(s, 1)
 		if res == nil {
-			return
+			return false
 		}
-		found = true
+
 		r0 := res[0]
 		tks = append(tks, altToken{
 			typ: typ,
 			val: r0[1],
 		})
 		s = strings.TrimPrefix(s, r0[0])
-		s = strings.TrimPrefix(s, " ")
+		s = strings.TrimSpace(s)
+		return true
 	}
 
 	for i := 0; i < 20; i++ {
-		found = false
+		switch {
+		case
+			consume(empty, tkEmpty),
+			consume(literal, tkLiteral),
+			consume(singleRune, tkSingleton),
+			consume(simpleHex, tkSingleton),
+			consume(tenHex, tkSingleton),
+			consume(regdot, tkDot),
+			consume(regminus, tkMinus),
+			consume(regReg, tkRegex),
+			consume(ruleName, tkRule):
 
-		consume(empty, tkEmpty)
-		consume(literal, tkLiteral)
-		consume(singleRune, tkSingleton)
-		consume(simpleHex, tkSingleton)
-		consume(tenHex, tkSingleton)
-		consume(regdot, tkDot)
-		consume(regminus, tkMinus)
-		consume(regReg, tkRegex)
-		consume(ruleName, tkRule)
-
-		if isEmptyOrComment(s) && found {
-			return tks, nil
+		default:
+			col := lenOrig - len(s) //TODO this is a bit wrong, it doesn't count the initial identation for example
+			return nil, fmt.Errorf("couldn't tokenize alternatives at column %d", col)
 		}
 
-		if !found {
-			return nil, fmt.Errorf("couldn't tokenize alternatives")
+		if isEmptyOrComment(s) {
+			return tks, nil
 		}
 	}
 
