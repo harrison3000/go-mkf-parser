@@ -92,8 +92,6 @@ func consumeRegex(s string, re *regexp.Regexp) (groupMatch, rest string, ok bool
 	m0 := m[0]
 
 	groupMatch = m0[1]
-	rest = strings.TrimPrefix(s, m0[0])
-	ok = true
-
+	rest, ok = strings.CutPrefix(s, m0[0])
 	return
 }
