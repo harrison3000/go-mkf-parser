@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	comment  = regexp.MustCompile(`^\s*\/\/.*$`)
 	ruleName = regexp.MustCompile(`^([a-zA-Z_]+)`)
 	ident    = regexp.MustCompile(`^( {4}|\t)`)
 )
@@ -77,11 +76,12 @@ func NewParser(grammar string) (*Parser, error) {
 }
 
 func isEmptyOrComment(s string) bool {
-	if strings.TrimSpace(s) == "" {
+	s = strings.TrimSpace(s)
+	if s == "" {
 		return true
 	}
 
-	return comment.MatchString(s)
+	return strings.HasPrefix(s, "//")
 }
 
 func consumeRegex(s string, re *regexp.Regexp) (match, rest string, ok bool) {
