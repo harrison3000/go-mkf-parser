@@ -34,6 +34,7 @@ const (
 	tkDot
 	tkMinus
 	tkRegex
+	tkRule
 )
 
 type altToken struct {
@@ -61,7 +62,8 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 		v.convertRune()
 	}
 
-	_ = tks
+	//TODO juntar com os pontos
+
 	//TODO implement
 	return nil, nil
 }
@@ -96,6 +98,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 		consume(regdot, tkDot)
 		consume(regminus, tkMinus)
 		consume(regReg, tkRegex)
+		consume(ruleName, tkRule)
 
 		if isEmptyOrComment(s) && found {
 			return tks, nil
