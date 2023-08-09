@@ -21,8 +21,8 @@ var (
 func NewParser(grammar string) (*Parser, error) {
 	lines := strings.Split(grammar, "\n")
 
-	exists := map[string]bool{} // TODO store the index and put it in Parser
-	var curr rule               //current rule
+	mrules := map[string]int{} // TODO store the index and put it in Parser
+	var curr rule              //current rule
 
 	var rules []rule
 
@@ -42,13 +42,13 @@ func NewParser(grammar string) (*Parser, error) {
 				return nil, fmt.Errorf("too much on line %d", k)
 			}
 
-			if exists[n] {
+			if _, ok := mrules[n]; ok {
 				return nil, fmt.Errorf("rule already defined on line %d", k)
 			}
 			if curr.name != "" {
 				push()
 			}
-			exists[n] = true
+			mrules[n] = len(rules)
 			curr.name = n
 			continue
 		}
@@ -71,7 +71,8 @@ func NewParser(grammar string) (*Parser, error) {
 	push()
 
 	return &Parser{
-		rules: rules,
+		rules:  rules,
+		mrules: mrules,
 	}, nil
 }
 

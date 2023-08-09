@@ -6,7 +6,8 @@
 package mkf
 
 type Parser struct {
-	rules []rule
+	rules  []rule
+	mrules map[string]int
 }
 
 type rule struct {
