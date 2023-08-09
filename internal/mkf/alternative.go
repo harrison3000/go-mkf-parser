@@ -15,8 +15,8 @@ import (
 // matcher typers
 var (
 	empty      = regexp.MustCompile(`^"()"`)
-	literal    = regexp.MustCompile(`^"([^"]+)"`)
-	singleRune = regexp.MustCompile(`^'(.)'`)
+	literal    = regexp.MustCompile(`^"([^"\p{Cc}]+)"`)
+	singleRune = regexp.MustCompile(`^'([^\p{C}])'`)
 	simpleHex  = regexp.MustCompile(`^'([0-9A-F]{4,5})'`)
 	tenHex     = regexp.MustCompile(`^'(10[0-9A-F]{4})'`)
 	regdot     = regexp.MustCompile(`^(\.)`)
