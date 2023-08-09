@@ -69,22 +69,20 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 }
 
 func tokenizeAlternative(s string) ([]altToken, error) {
-	lenOrig := len(s)
+	orig := s
 	var tks []altToken
 
 	consume := func(regex *regexp.Regexp, typ tokensTy) bool {
-		res := regex.FindAllStringSubmatch(s, 1)
-		if res == nil {
+		val, rest, ok := consumeRegex(s, regex)
+		if !ok {
 			return false
 		}
 
-		r0 := res[0]
 		tks = append(tks, altToken{
 			typ: typ,
-			val: r0[1],
+			val: val,
 		})
-		s = strings.TrimPrefix(s, r0[0])
-		s = strings.TrimLeft(s, " \t")
+		s = strings.TrimLeft(rest, " \t")
 		return true
 	}
 
@@ -102,7 +100,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 			consume(ruleName, tkRule):
 
 		default:
-			col := lenOrig - len(s) //TODO this is a bit wrong, it doesn't count the initial identation for example
+			col := len(orig) - len(s) //TODO this is a bit wrong, it doesn't count the initial identation for example
 			return nil, fmt.Errorf("couldn't tokenize alternatives at column %d", col)
 		}
 

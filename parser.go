@@ -84,15 +84,15 @@ func isEmptyOrComment(s string) bool {
 	return strings.HasPrefix(s, "//")
 }
 
-func consumeRegex(s string, re *regexp.Regexp) (match, rest string, ok bool) {
-	m := re.FindAllStringIndex(s, 1)
+func consumeRegex(s string, re *regexp.Regexp) (groupMatch, rest string, ok bool) {
+	m := re.FindAllStringSubmatch(s, 1)
 	if m == nil {
 		return
 	}
 	m0 := m[0]
 
-	match = s[m0[0]:m0[1]]
-	rest = s[m0[1]:]
+	groupMatch = m0[1]
+	rest = strings.TrimPrefix(s, m0[0])
 	ok = true
 
 	return
