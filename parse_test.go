@@ -28,7 +28,7 @@ tost
 
 func TestS2ATypes(t *testing.T) {
 	doTest := func(alt string, allowEmpty bool, types ...itemType) {
-		res, e := str2alt(alt, allowEmpty)
+		res, e := str2alt(" "+alt, allowEmpty)
 		if e != nil {
 			t.Errorf("Error parsing alternative: %s", e)
 			return
@@ -65,6 +65,6 @@ func TestS2ATypes(t *testing.T) {
 		}
 	}
 
-	doTestError(`"hello" ""`, false)
-	doTestError(`'a'.'z'`, true)
+	doTestError(` "hello" ""`, false) //empty not alone
+	doTestError(` 'a'.'z'`, true)     //no space sparating
 }

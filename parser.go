@@ -53,12 +53,12 @@ func NewParser(grammar string) (*Parser, error) {
 			continue
 		}
 
-		if _, rest, ok := consumeRegex(v, ident); ok {
+		if _, _, ok := consumeRegex(v, ident); ok {
 			if curr.name == "" {
 				return nil, newParseError("orphaned alternative", k)
 			}
 
-			alt, err := str2alt(rest, len(curr.alt) == 0)
+			alt, err := str2alt(v, len(curr.alt) == 0)
 			if err != nil {
 				//TODO improve this
 				return nil, fmt.Errorf("error parsing alternative at line %d: %w", k, err)

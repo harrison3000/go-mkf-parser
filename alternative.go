@@ -82,12 +82,19 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 			typ: typ,
 			val: val,
 		})
-		s = strings.TrimLeft(rest, " \t")
+		s = rest
 		return true
 	}
 
 	const maxTokens = 20
 	for i := 0; i < maxTokens; i++ {
+		sut := strings.TrimLeft(s, " \t")
+		if sut == s { //didn't trim
+			col := len(orig) - len(s)
+			return nil, fmt.Errorf("required space not found at column %d", col)
+		}
+		s = sut
+
 		switch {
 		case
 			consume(empty, tkEmpty),
@@ -101,7 +108,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 			consume(ruleName, tkRule):
 
 		default:
-			col := len(orig) - len(s) //TODO this is a bit wrong, it doesn't count the initial identation for example
+			col := len(orig) - len(s)
 			return nil, fmt.Errorf("couldn't tokenize alternatives at column %d", col)
 		}
 
