@@ -86,7 +86,8 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 		return true
 	}
 
-	for i := 0; i < 20; i++ {
+	const maxTokens = 20
+	for i := 0; i < maxTokens; i++ {
 		switch {
 		case
 			consume(empty, tkEmpty),
@@ -109,7 +110,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("alternative too big")
+	return nil, fmt.Errorf("alternative too big (max: %d tokens)", maxTokens)
 }
 
 func (tk *altToken) convertRune() {
