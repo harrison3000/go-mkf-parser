@@ -28,15 +28,15 @@ tost
 
 func TestS2ATypes(t *testing.T) {
 	doTest := func(alt string, allowEmpty bool, types ...itemType) {
-		res, e := str2alt(" "+alt, allowEmpty)
+		a, e := str2alt(" "+alt, allowEmpty)
 		if e != nil {
 			t.Errorf("Error parsing alternative: %s", e)
 			return
 		}
-		if len(res) != len(types) {
-			t.Errorf("Wrong size")
+		if lg, le := len(a.itens), len(types); lg != le {
+			t.Errorf("Wrong size, expected: %d, got: %d", le, lg)
 		}
-		for k, v := range res {
+		for k, v := range a.itens {
 			if v.typ != types[k] {
 				t.Error("Wrong type")
 			}

@@ -40,32 +40,64 @@ const (
 type altToken struct {
 	typ tokensTy
 	val string
-	r   rune
 }
 
 func str2alt(s string, allowEmpty bool) (alternative, error) {
 	tks, e := tokenizeAlternative(s)
 	if e != nil {
-		return nil, e
+		return alternative{}, e
 	}
 	if allowEmpty && len(tks) == 1 && tks[0].typ == tkEmpty {
 		return alternative{
-			item{typ: itemEmpty},
+			empty: true,
+			itens: []item{
+				{typ: itemEmpty},
+			},
 		}, nil
+	}
+
+	var itens []item
+	push := func(i item) {
+		itens = append(itens, i)
 	}
 
 	for k := range tks {
 		v := &tks[k]
-		if v.typ == tkEmpty {
-			return nil, fmt.Errorf("unallowed empty found")
+
+		switch v.typ {
+		case tkEmpty:
+			return alternative{}, fmt.Errorf("unallowed empty found")
+		case tkLiteral:
+			push(item{
+				typ: itemLiteral,
+				lit: v.val,
+			})
+		case tkSingleton:
+			panic("not implemented yet")
+
+		case tkRegex:
+			unescaped := strings.ReplaceAll(v.val, `\/`, "/")
+			r, e := regexp.Compile(unescaped)
+			if e != nil {
+				return alternative{}, fmt.Errorf("error compiling regex: %w", e)
+			}
+			push(item{
+				typ: itemRegex,
+				reg: r,
+			})
+
+		case tkRule:
+			push(item{
+				typ: itemRule,
+				lit: v.val,
+			})
+
+		default:
+			panic("unexpected token")
 		}
-		v.convertRune()
 	}
 
-	//TODO juntar com os pontos
-
-	//TODO implement
-	return nil, nil
+	return alternative{itens: itens}, nil
 }
 
 func tokenizeAlternative(s string) ([]altToken, error) {
@@ -120,18 +152,12 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 	return nil, fmt.Errorf("alternative too big (max: %d tokens)", maxTokens)
 }
 
-func (tk *altToken) convertRune() {
-	if tk.typ != tkSingleton {
-		return
-	}
+func (tk *altToken) convertRune() (rune, error) {
 	s := tk.val
-	tk.val = ""
 
-	rn := []rune(s)
-	if len(rn) == 1 {
-		tk.r = rn[0]
-		return
+	if rn := []rune(s); len(rn) == 1 {
+		return rn[0], nil
 	}
-	num, _ := strconv.ParseInt(s, 16, 0)
-	tk.r = rune(num)
+	num, err := strconv.ParseInt(s, 16, 0)
+	return rune(num), err
 }

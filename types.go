@@ -5,6 +5,8 @@
 
 package mkf
 
+import "regexp"
+
 type Parser struct {
 	rules  []rule
 	mrules map[string]int
@@ -15,12 +17,15 @@ type rule struct {
 	alt  []alternative
 }
 
-type alternative []item
+type alternative struct {
+	empty bool
+	itens []item
+}
 
 type item struct {
 	typ itemType
 	lit string
-	r   rune
+	reg *regexp.Regexp
 }
 
 type itemType int8
@@ -33,6 +38,7 @@ const (
 	itemSimpleRange
 	itemComplexRange
 	itemRegex
+	itemRule
 )
 
 type grammarParseError struct {
