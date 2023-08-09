@@ -31,6 +31,7 @@ const (
 	itemEmpty
 	itemRune
 	itemSimpleRange
+	itemComplexRange
 	itemRegex
 )
 

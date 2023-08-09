@@ -51,8 +51,20 @@ func TestS2ATypes(t *testing.T) {
 		itemSimpleRange,
 	)
 
-	_, e := str2alt(`"hello" ""`, false)
-	if e == nil {
-		t.Error("should be error")
+	doTest(`"hi" 'b' . 'd' 'a' . 'z' - 't' . 'v' - 'h' /a \/ aa/ '10ABCD'`, false,
+		itemLiteral,
+		itemComplexRange,
+		itemRegex,
+		itemRune,
+	)
+
+	doTestError := func(alt string, allowEmpty bool) {
+		_, e := str2alt(alt, allowEmpty)
+		if e == nil {
+			t.Errorf("expected error")
+		}
 	}
+
+	doTestError(`"hello" ""`, false)
+	doTestError(`'a'.'z'`, true)
 }
