@@ -26,34 +26,33 @@ tost
 	_ = p
 }
 
-func TestS2A(t *testing.T) {
-	emp, e := str2alt(`"" //comment`, true)
-	if e != nil {
-		t.Fatal("error")
-	}
-	if len(emp) != 1 {
-		t.Fatal("Wrong size")
-	}
-	if emp[0].typ != mtEmpty {
-		t.Fatal("Wrong thing")
-	}
-
-	alt, e := str2alt(`"hello" 'a'`, false)
-
-	if len(alt) != 2 {
-		t.Fatal("Wrong size")
-	}
-	if e != nil {
-		t.Fatal("error")
-	}
-	mtExp := item{typ: mtLiteral, lit: "hello"}
-	if alt[0] != mtExp {
-		t.Fatal("didn't parse literal")
+func TestS2ATypes(t *testing.T) {
+	doTest := func(alt string, allowEmpty bool, types ...matcherType) {
+		res, e := str2alt(alt, allowEmpty)
+		if e != nil {
+			t.Errorf("Error parsing alternative: %s", e)
+			return
+		}
+		if len(res) != len(types) {
+			t.Errorf("Wrong size")
+		}
+		for k, v := range res {
+			if v.typ != types[k] {
+				t.Error("Wrong type")
+			}
+		}
 	}
 
-	mtExp = item{typ: mtRune, r: 'a'}
-	if alt[1] != mtExp {
-		t.Fatal("didn't parse rune")
-	}
+	doTest(`"" //comment`, true, mtEmpty)
 
+	doTest(`"hello" 'a' 'f' . 't'`, false,
+		mtLiteral,
+		mtRune,
+		mtSimpleRange,
+	)
+
+	_, e := str2alt(`"hello" ""`, false)
+	if e == nil {
+		t.Error("should be error")
+	}
 }
