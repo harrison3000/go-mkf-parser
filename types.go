@@ -33,3 +33,8 @@ const (
 	mtSimpleRange
 	mtRegex
 )
+
+type grammarParseError struct {
+	err  string
+	line int
+}

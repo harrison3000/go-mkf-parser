@@ -39,11 +39,11 @@ func NewParser(grammar string) (*Parser, error) {
 
 		if n, rest, ok := consumeRegex(v, ruleName); ok {
 			if !isEmptyOrComment(rest) {
-				return nil, fmt.Errorf("too much on line %d", k)
+				return nil, newParseError("unexpected content after rule name", k)
 			}
 
 			if _, ok := mrules[n]; ok {
-				return nil, fmt.Errorf("rule already defined on line %d", k)
+				return nil, newParseError("duplicate rule", k)
 			}
 			if curr.name != "" {
 				push()
@@ -55,17 +55,18 @@ func NewParser(grammar string) (*Parser, error) {
 
 		if _, rest, ok := consumeRegex(v, ident); ok {
 			if curr.name == "" {
-				return nil, fmt.Errorf("orphaned alternative on line %d", k)
+				return nil, newParseError("orphaned alternative", k)
 			}
 
 			alt, err := str2alt(rest, len(curr.alt) == 0)
 			if err != nil {
+				//TODO improve this
 				return nil, fmt.Errorf("error parsing alternative at line %d: %w", k, err)
 			}
 			curr.alt = append(curr.alt, alt)
 			continue
 		}
-		return nil, fmt.Errorf("didn't understand line %d", k)
+		return nil, newParseError("unable to parse grammar", k)
 	}
 
 	push()
@@ -95,4 +96,15 @@ func consumeRegex(s string, re *regexp.Regexp) (groupMatch, rest string, ok bool
 	groupMatch = m0[1]
 	rest, ok = strings.CutPrefix(s, m0[0])
 	return
+}
+
+func newParseError(err string, line int) *grammarParseError {
+	return &grammarParseError{
+		line: line,
+		err:  err,
+	}
+}
+
+func (g *grammarParseError) Error() string {
+	return fmt.Sprintf("%s, on line: %d", g.err, g.line)
 }
