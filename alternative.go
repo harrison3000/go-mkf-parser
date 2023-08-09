@@ -84,7 +84,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 			val: r0[1],
 		})
 		s = strings.TrimPrefix(s, r0[0])
-		s = strings.TrimSpace(s)
+		s = strings.TrimLeft(s, " \t")
 		return true
 	}
 
