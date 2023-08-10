@@ -68,6 +68,8 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 		case tkEmpty:
 			return alternative{}, fmt.Errorf("unallowed empty found")
 		case tkLiteral:
+			//TODO possible optimization: single char strings -> singleton
+
 			push(item{
 				typ: itemLiteral,
 				lit: v.val,
@@ -77,7 +79,7 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 			if err != nil {
 				return alternative{}, fmt.Errorf("error interpreting range: %w", err)
 			}
-			i += skip
+			i += skip - 1
 			push(it)
 
 		case tkRegex:
@@ -169,17 +171,53 @@ func (tk *altToken) convertRune() (rune, error) {
 }
 
 func tksToItem(tks []altToken) (item, int, error) {
-	switch {
-	case isSingleton(tks):
+	if isSingleton(tks) {
 		r, e := tks[0].convertRune()
 		var ret item
 		ret.typ = itemRune
 		ret.runes[0] = r
-		return ret, 0, e
-
+		return ret, 1, e
+	}
+	if !isRange(tks) {
+		return item{}, 99999, fmt.Errorf("invalid syntax")
 	}
 
-	panic("not implemented")
+	ol := len(tks)
+
+	consume := func(i int) {
+		tks = tks[i:]
+	}
+
+	consume(3) //the original range
+
+	var err error
+	var inception func()
+
+	inception = func() {
+		if len(tks) == 0 || tks[0].typ != tkMinus {
+			return
+		}
+		consume(1) //the minus
+
+		switch {
+		case isSingleton(tks):
+			fmt.Print("found more singleton")
+			//TODO do the things here
+			consume(1)
+			inception() //we must go deeper
+		case isRange(tks):
+			fmt.Print("found more range")
+			//TODO do the things
+			consume(3)
+			inception() //deeeeeepeeeeeeeeer
+		default:
+			err = fmt.Errorf("invalid syntax, minus followed by wrong thing")
+		}
+	}
+
+	inception()
+
+	return item{}, ol - len(tks), err
 }
 
 func isSingleton(tks []altToken) bool {
@@ -189,4 +227,15 @@ func isSingleton(tks []altToken) bool {
 
 	t := tks[1].typ
 	return t != tkDot
+}
+
+func isRange(tks []altToken) bool {
+	if len(tks) < 3 {
+		return false
+	}
+	a := tks[0].typ == tkSingleton
+	b := tks[1].typ == tkDot
+	c := tks[2].typ == tkSingleton
+
+	return a && b && c
 }
