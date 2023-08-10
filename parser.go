@@ -21,6 +21,8 @@ var (
 func NewParser(grammar string) (*Parser, error) {
 	lines := strings.Split(grammar, "\n")
 
+	used := map[string]bool{}
+
 	mrules := map[string]int{} // TODO store the index and put it in Parser
 	var curr rule              //current rule
 
@@ -63,6 +65,13 @@ func NewParser(grammar string) (*Parser, error) {
 				//TODO improve this
 				return nil, fmt.Errorf("error parsing alternative at line %d: %w", k, err)
 			}
+
+			for _, item := range alt.itens {
+				if item.typ == itemRule {
+					used[item.lit] = true
+				}
+			}
+
 			curr.alt = append(curr.alt, alt)
 			continue
 		}
@@ -70,6 +79,14 @@ func NewParser(grammar string) (*Parser, error) {
 	}
 
 	push()
+
+	for k := range used {
+		if _, ok := mrules[k]; !ok {
+			return nil, fmt.Errorf("rule not found: %s", k)
+		}
+	}
+
+	//TODO warn unused?
 
 	return &Parser{
 		rules:  rules,
