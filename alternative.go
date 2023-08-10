@@ -90,8 +90,8 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 				return alternative{}, fmt.Errorf("error compiling regex: %w", e)
 			}
 			push(item{
-				typ: itemRegex,
-				reg: r,
+				typ:     itemRegex,
+				complex: r,
 			})
 
 		case tkRule:

@@ -5,8 +5,6 @@
 
 package mkf
 
-import "regexp"
-
 type Parser struct {
 	mrules map[string]int
 	rules  []rule
@@ -23,8 +21,8 @@ type alternative struct {
 }
 
 type item struct {
-	reg *regexp.Regexp
-	lit string
+	complex any //TODO specific interface for complex matchers
+	lit     string
 
 	runes [2]rune
 	typ   itemType
