@@ -56,3 +56,6 @@ type complexRange struct {
 }
 
 type runeRange [2]rune
+
+type Result struct {
+}

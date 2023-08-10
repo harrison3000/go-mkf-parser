@@ -70,3 +70,13 @@ func TestS2ATypes(t *testing.T) {
 	doTestError(` "hello" ""`, false) //empty not alone
 	doTestError(` 'a'.'z'`, true)     //no space sparating
 }
+
+func TestNotExists(t *testing.T) {
+	_, e := NewParser(`
+test
+    anotherRule
+`)
+	if e == nil {
+		t.Fatal("False positive")
+	}
+}
