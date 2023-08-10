@@ -188,9 +188,13 @@ func tksToItem(tks []altToken) (item, int, error) {
 	}
 
 	ol := len(tks)
-	base := [2]rune{
+	base := runeRange{
 		tks[0].convertRune(),
 		tks[2].convertRune(),
+	}
+
+	if !base.valid() {
+		return item{}, 99999, fmt.Errorf("invalid range")
 	}
 
 	consume := func(i int) {
@@ -199,7 +203,7 @@ func tksToItem(tks []altToken) (item, int, error) {
 
 	consume(3) //the original range
 
-	var excludes [][2]rune
+	var excludes []runeRange
 	var inception func() error
 
 	inception = func() error {
@@ -211,11 +215,11 @@ func tksToItem(tks []altToken) (item, int, error) {
 		switch {
 		case isSingleton(tks):
 			r0 := tks[0].convertRune()
-			excludes = append(excludes, [2]rune{r0, r0})
+			excludes = append(excludes, runeRange{r0, r0})
 			consume(1)
 		case isRange(tks):
 			r0, r1 := tks[0].convertRune(), tks[2].convertRune()
-			excludes = append(excludes, [2]rune{r0, r1})
+			excludes = append(excludes, runeRange{r0, r1})
 			consume(3)
 		default:
 			return fmt.Errorf("invalid syntax, minus followed by wrong thing")
@@ -233,14 +237,14 @@ func tksToItem(tks []altToken) (item, int, error) {
 		runes: base,
 	}
 	if len(excludes) != 0 {
+		cplx := newComplexRange(base, excludes)
+		if cplx == nil {
+			return item{}, 0, fmt.Errorf("invalid exclusion range")
+		}
 		i = item{
 			typ:     itemComplexRange,
-			complex: newComplexRange(base, excludes),
+			complex: cplx,
 		}
-	}
-
-	if !validRange(i) {
-		return item{}, 99999, fmt.Errorf("invalid range")
 	}
 
 	return i, ol - len(tks), nil
@@ -264,16 +268,4 @@ func isRange(tks []altToken) bool {
 	c := tks[2].typ == tkSingleton
 
 	return a && b && c
-}
-
-func validRange(i item) bool {
-	if i.typ == itemSimpleRange {
-		return i.runes[0] < i.runes[1]
-	}
-	if i.typ == itemComplexRange {
-		return i.complex != nil
-	}
-
-	//TODO validate complex
-	return false
 }

@@ -24,7 +24,7 @@ type item struct {
 	complex any //TODO specific interface for complex matchers
 	lit     string
 
-	runes [2]rune
+	runes runeRange
 	typ   itemType
 }
 
@@ -47,6 +47,8 @@ type grammarParseError struct {
 }
 
 type complexRange struct {
-	base     [2]rune
-	excludes [][2]rune
+	base     runeRange
+	excludes []runeRange
 }
+
+type runeRange [2]rune
