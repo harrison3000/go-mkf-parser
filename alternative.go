@@ -90,8 +90,8 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 				return alternative{}, fmt.Errorf("error compiling regex: %w", e)
 			}
 			push(item{
-				typ:     itemRegex,
-				complex: r,
+				typ:   itemRegex,
+				regex: r,
 			})
 
 		case tkRule:
@@ -242,8 +242,8 @@ func tksToItem(tks []altToken) (item, int, error) {
 			return item{}, 0, fmt.Errorf("invalid exclusion range")
 		}
 		i = item{
-			typ:     itemComplexRange,
-			complex: cplx,
+			typ:          itemComplexRange,
+			complexRange: cplx,
 		}
 	}
 

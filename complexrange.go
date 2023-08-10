@@ -18,5 +18,5 @@ func newComplexRange(base runeRange, excludes []runeRange) *complexRange {
 }
 
 func (r runeRange) valid() bool {
-	return r[0] <= r[1]
+	return r[0] <= r[1] && r[0] > 0
 }
