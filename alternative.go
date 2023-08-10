@@ -237,6 +237,10 @@ func tksToItem(tks []altToken) (item, int, error) {
 		//TODO actually implement this
 	}
 
+	if !validRange(i) {
+		return item{}, 99999, fmt.Errorf("invalid range")
+	}
+
 	return i, ol - len(tks), nil
 }
 
@@ -258,4 +262,13 @@ func isRange(tks []altToken) bool {
 	c := tks[2].typ == tkSingleton
 
 	return a && b && c
+}
+
+func validRange(i item) bool {
+	if i.typ == itemSimpleRange {
+		return i.runes[0] < i.runes[1]
+	}
+
+	//TODO validate complex
+	return false
 }
