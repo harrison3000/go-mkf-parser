@@ -196,13 +196,12 @@ func tksToItem(tks []altToken) (item, int, error) {
 
 	consume(3) //the original range
 
-	var err error
 	var excludes [][2]rune
-	var inception func()
+	var inception func() error
 
-	inception = func() {
+	inception = func() error {
 		if len(tks) == 0 || tks[0].typ != tkMinus {
-			return
+			return nil
 		}
 		consume(1) //the minus
 
@@ -212,20 +211,19 @@ func tksToItem(tks []altToken) (item, int, error) {
 			excludes = append(excludes, [2]rune{r0, r0})
 			consume(1)
 		case isRange(tks):
-			excludes = append(excludes, [2]rune{
-				tks[0].convertRune(),
-				tks[2].convertRune(),
-			})
+			r0, r1 := tks[0].convertRune(), tks[2].convertRune()
+			excludes = append(excludes, [2]rune{r0, r1})
 			consume(3)
 		default:
-			err = fmt.Errorf("invalid syntax, minus followed by wrong thing")
-			return
+			return fmt.Errorf("invalid syntax, minus followed by wrong thing")
 		}
 
-		inception() //we must go deeper
+		return inception() //we must go deeper
 	}
 
-	inception()
+	if err := inception(); err != nil {
+		return item{}, 99999, err
+	}
 
 	i := item{
 		typ: itemSimpleRange,
@@ -239,7 +237,7 @@ func tksToItem(tks []altToken) (item, int, error) {
 		//TODO actually implement this
 	}
 
-	return i, ol - len(tks), err
+	return i, ol - len(tks), nil
 }
 
 func isSingleton(tks []altToken) bool {
