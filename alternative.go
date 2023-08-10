@@ -211,17 +211,18 @@ func tksToItem(tks []altToken) (item, int, error) {
 			r0 := tks[0].convertRune()
 			excludes = append(excludes, [2]rune{r0, r0})
 			consume(1)
-			inception() //we must go deeper
 		case isRange(tks):
 			excludes = append(excludes, [2]rune{
 				tks[0].convertRune(),
 				tks[2].convertRune(),
 			})
 			consume(3)
-			inception() //deeeeeepeeeeeeeeer
 		default:
 			err = fmt.Errorf("invalid syntax, minus followed by wrong thing")
+			return
 		}
+
+		inception() //we must go deeper
 	}
 
 	inception()
