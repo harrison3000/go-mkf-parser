@@ -188,7 +188,10 @@ func tksToItem(tks []altToken) (item, int, error) {
 	}
 
 	ol := len(tks)
-	base := tks[:3]
+	base := [2]rune{
+		tks[0].convertRune(),
+		tks[2].convertRune(),
+	}
 
 	consume := func(i int) {
 		tks = tks[i:]
@@ -226,15 +229,14 @@ func tksToItem(tks []altToken) (item, int, error) {
 	}
 
 	i := item{
-		typ: itemSimpleRange,
-		runes: [2]rune{
-			base[0].convertRune(),
-			base[2].convertRune(),
-		},
+		typ:   itemSimpleRange,
+		runes: base,
 	}
 	if len(excludes) != 0 {
-		i = item{typ: itemComplexRange}
-		//TODO actually implement this
+		i = item{
+			typ:     itemComplexRange,
+			complex: newComplexRange(base, excludes),
+		}
 	}
 
 	if !validRange(i) {
@@ -267,6 +269,9 @@ func isRange(tks []altToken) bool {
 func validRange(i item) bool {
 	if i.typ == itemSimpleRange {
 		return i.runes[0] < i.runes[1]
+	}
+	if i.typ == itemComplexRange {
+		return i.complex != nil
 	}
 
 	//TODO validate complex

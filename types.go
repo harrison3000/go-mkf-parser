@@ -45,3 +45,8 @@ type grammarParseError struct {
 	err  string
 	line int
 }
+
+type complexRange struct {
+	base     [2]rune
+	excludes [][2]rune
+}
