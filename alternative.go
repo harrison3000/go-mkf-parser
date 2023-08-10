@@ -101,7 +101,7 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 			})
 
 		default:
-			panic("unexpected token")
+			panic("unexpected token") //TODO should be a error
 		}
 	}
 
@@ -160,29 +160,35 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 	return nil, fmt.Errorf("alternative too big (max: %d tokens)", maxTokens)
 }
 
-func (tk *altToken) convertRune() (rune, error) {
+func (tk *altToken) convertRune() rune {
 	s := tk.val
 
 	if rn := []rune(s); len(rn) == 1 {
-		return rn[0], nil
+		return rn[0]
 	}
 	num, err := strconv.ParseInt(s, 16, 0)
-	return rune(num), err
+	if err != nil {
+		//the hexadecimal regexes should ensure this
+		//part of the code isn't reached
+		panic("the impossible became possible somehow")
+	}
+
+	return rune(num)
 }
 
 func tksToItem(tks []altToken) (item, int, error) {
 	if isSingleton(tks) {
-		r, e := tks[0].convertRune()
 		var ret item
 		ret.typ = itemRune
-		ret.runes[0] = r
-		return ret, 1, e
+		ret.runes[0] = tks[0].convertRune()
+		return ret, 1, nil
 	}
 	if !isRange(tks) {
 		return item{}, 99999, fmt.Errorf("invalid syntax")
 	}
 
 	ol := len(tks)
+	base := tks[:3]
 
 	consume := func(i int) {
 		tks = tks[i:]
@@ -191,6 +197,7 @@ func tksToItem(tks []altToken) (item, int, error) {
 	consume(3) //the original range
 
 	var err error
+	var excludes [][2]rune
 	var inception func()
 
 	inception = func() {
@@ -201,13 +208,15 @@ func tksToItem(tks []altToken) (item, int, error) {
 
 		switch {
 		case isSingleton(tks):
-			fmt.Print("found more singleton")
-			//TODO do the things here
+			r0 := tks[0].convertRune()
+			excludes = append(excludes, [2]rune{r0, r0})
 			consume(1)
 			inception() //we must go deeper
 		case isRange(tks):
-			fmt.Print("found more range")
-			//TODO do the things
+			excludes = append(excludes, [2]rune{
+				tks[0].convertRune(),
+				tks[2].convertRune(),
+			})
 			consume(3)
 			inception() //deeeeeepeeeeeeeeer
 		default:
@@ -217,7 +226,19 @@ func tksToItem(tks []altToken) (item, int, error) {
 
 	inception()
 
-	return item{}, ol - len(tks), err
+	i := item{
+		typ: itemSimpleRange,
+		runes: [2]rune{
+			base[0].convertRune(),
+			base[2].convertRune(),
+		},
+	}
+	if len(excludes) != 0 {
+		i = item{typ: itemComplexRange}
+		//TODO actually implement this
+	}
+
+	return i, ol - len(tks), err
 }
 
 func isSingleton(tks []altToken) bool {
