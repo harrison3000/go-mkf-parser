@@ -61,8 +61,8 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 		itens = append(itens, i)
 	}
 
-	for k := range tks {
-		v := &tks[k]
+	for i := 0; i < len(tks); i++ {
+		v := &tks[i]
 
 		switch v.typ {
 		case tkEmpty:
@@ -73,10 +73,16 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 				lit: v.val,
 			})
 		case tkSingleton:
-			panic("not implemented yet")
+			it, skip, err := tksToItem(tks[i:])
+			if err != nil {
+				return alternative{}, fmt.Errorf("error interpreting range: %w", err)
+			}
+			i += skip
+			push(it)
 
 		case tkRegex:
 			unescaped := strings.ReplaceAll(v.val, `\/`, "/")
+			//TODO warn on regexes that don't start with ^
 			r, e := regexp.Compile(unescaped)
 			if e != nil {
 				return alternative{}, fmt.Errorf("error compiling regex: %w", e)
@@ -160,4 +166,27 @@ func (tk *altToken) convertRune() (rune, error) {
 	}
 	num, err := strconv.ParseInt(s, 16, 0)
 	return rune(num), err
+}
+
+func tksToItem(tks []altToken) (item, int, error) {
+	switch {
+	case isSingleton(tks):
+		r, e := tks[0].convertRune()
+		var ret item
+		ret.typ = itemRune
+		ret.runes[0] = r
+		return ret, 0, e
+
+	}
+
+	panic("not implemented")
+}
+
+func isSingleton(tks []altToken) bool {
+	if len(tks) < 2 {
+		return true
+	}
+
+	t := tks[1].typ
+	return t != tkDot
 }

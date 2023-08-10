@@ -26,6 +26,8 @@ type item struct {
 	typ itemType
 	lit string
 	reg *regexp.Regexp
+
+	runes [2]rune
 }
 
 type itemType int8
