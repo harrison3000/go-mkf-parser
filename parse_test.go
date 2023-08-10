@@ -35,6 +35,7 @@ func TestS2ATypes(t *testing.T) {
 		}
 		if lg, le := len(a.itens), len(types); lg != le {
 			t.Errorf("Wrong size, expected: %d, got: %d", le, lg)
+			return
 		}
 		for k, v := range a.itens {
 			if v.typ != types[k] {
@@ -53,6 +54,7 @@ func TestS2ATypes(t *testing.T) {
 
 	doTest(`"hi" 'b' . 'd' 'a' . 'z' - 't' . 'v' - 'h' /a \/ aa/ '10ABCD'`, false,
 		itemLiteral,
+		itemSimpleRange,
 		itemComplexRange,
 		itemRegex,
 		itemRune,
