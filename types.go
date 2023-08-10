@@ -8,8 +8,8 @@ package mkf
 import "regexp"
 
 type Parser struct {
-	rules  []rule
 	mrules map[string]int
+	rules  []rule
 }
 
 type rule struct {
@@ -18,16 +18,16 @@ type rule struct {
 }
 
 type alternative struct {
-	empty bool
 	itens []item
+	empty bool
 }
 
 type item struct {
-	typ itemType
-	lit string
 	reg *regexp.Regexp
+	lit string
 
 	runes [2]rune
+	typ   itemType
 }
 
 type itemType int8
