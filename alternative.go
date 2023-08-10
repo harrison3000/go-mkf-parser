@@ -101,7 +101,7 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 			})
 
 		default:
-			panic("unexpected token") //TODO should be a error
+			return alternative{}, fmt.Errorf("unexpected token")
 		}
 	}
 
