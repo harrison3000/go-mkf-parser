@@ -53,15 +53,40 @@ ws
 		return res
 	}
 
+	mustFail := func(s string) *Node {
+		res, e := p.ParseString(s)
+		if e == nil {
+			t.Error("Should have failed")
+		}
+		return res
+	}
+
 	mustGoRight("[7]")
 	mustGoRight("[729]")
 	mustGoRight("[72,899]")
 	mustGoRight("[720,444,22,123,5, 123 ,123]")
 
-	_, e = p.ParseString("[ 720,444,22,123,5, 1z23 ,12]")
-	if e == nil {
-		t.Error("Should have failed")
+	mustFail("[ 720,444,22,123,5, 1z23 ,12]")
+
+	p, e = NewParser(`
+rootRule
+	'a' . 'z' - 'p' - 'd' . 'f'
+	`)
+
+	if e != nil {
+		t.Fatalf("Should be nil: %s", e)
 	}
+
+	mustGoRight("a")
+	mustGoRight("t")
+	mustGoRight("q")
+	mustGoRight("z")
+
+	mustFail("A")
+	mustFail("p")
+	mustFail("f")
+	mustFail("e")
+	mustFail("d")
 
 }
 

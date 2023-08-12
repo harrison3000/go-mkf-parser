@@ -75,10 +75,16 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 		s := input[vLen:]
 
 		switch v.kind {
-		case itemRune, itemSimpleRange:
+		case itemRune, itemSimpleRange, itemComplexRange:
 			c, l := utf8.DecodeRuneInString(s)
 			//TODO what about the error?
-			if !v.runes.inRange(c) {
+			var ok bool
+			if v.kind == itemComplexRange {
+				ok = v.complexRange.inRange(c)
+			} else {
+				ok = v.runes.inRange(c)
+			}
+			if !ok {
 				return nil, false
 			}
 			vLen += l
