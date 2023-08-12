@@ -57,7 +57,9 @@ func (pe *parseEnviroment) matchRule(rule string, input string) (*Node, bool) {
 	if ret == nil {
 		if r.allowEmpty {
 			//TODO improve?
-			return &Node{}, true
+			return &Node{
+				rule: rule,
+			}, true
 		}
 		return nil, false
 	}
