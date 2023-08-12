@@ -40,29 +40,29 @@ func (pe *parseEnviroment) matchRule(rule string, input string) (*Node, bool) {
 	ruleidx := pe.parser.mrules[rule] // TODO check ok, just to be sure
 	r := &pe.parser.rules[ruleidx]
 
-	matched := make([]*Node, 0, 8)
+	var ret *Node
 
 	for _, v := range r.alt {
 		n, ok := pe.tryAlternative(v, input)
 		if !ok {
 			continue
 		}
+		if ret != nil && len(ret.val) > len(n.val) {
+			continue
+		}
 		n.rule = rule
-		matched = append(matched, n)
+		ret = n
 	}
 
-	if len(matched) == 0 {
+	if ret == nil {
 		if r.allowEmpty {
 			//TODO improve?
 			return &Node{}, true
 		}
 		return nil, false
 	}
-	if len(matched) > 1 {
-		panic("what do we do now?")
-	}
 
-	return matched[0], matched != nil
+	return ret, true
 }
 
 func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node, bool) {
