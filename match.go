@@ -43,11 +43,14 @@ func (pe *parseEnviroment) matchRule(rule string) (*Node, bool) {
 		if !ok {
 			continue
 		}
-		_ = n
-		//TODO continue implementing
+		n.rule = rule
+		return n, true
 	}
 
-	//TODO allow empty
+	if r.allowEmpty {
+		//TODO improve
+		return &Node{}, true
+	}
 
 	return nil, false
 }
