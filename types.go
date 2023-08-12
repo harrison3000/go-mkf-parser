@@ -66,6 +66,5 @@ type Node struct {
 
 type parseEnviroment struct {
 	parser *Parser
-	input  *strReader
 	depth  int
 }
