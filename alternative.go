@@ -49,7 +49,6 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 	}
 	if allowEmpty && len(tks) == 1 && tks[0].typ == tkEmpty {
 		return alternative{
-			empty: true,
 			itens: []item{
 				{typ: itemEmpty},
 			},
@@ -268,4 +267,8 @@ func isRange(tks []altToken) bool {
 	c := tks[2].typ == tkSingleton
 
 	return a && b && c
+}
+
+func (a *alternative) isEmpty() bool {
+	return len(a.itens) == 1 && a.itens[0].typ == itemEmpty
 }

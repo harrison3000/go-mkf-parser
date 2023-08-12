@@ -59,11 +59,17 @@ func NewParser(grammar string) (*Parser, error) {
 			if curr.name == "" {
 				return nil, newParseError("orphaned alternative", k)
 			}
+			allowEmpty := len(curr.alt) == 0
 
-			alt, err := str2alt(v, len(curr.alt) == 0)
+			alt, err := str2alt(v, allowEmpty)
 			if err != nil {
 				//TODO improve this
 				return nil, fmt.Errorf("error parsing alternative at line %d: %w", k, err)
+			}
+
+			if allowEmpty && alt.isEmpty() {
+				curr.allowEmpty = true
+				continue
 			}
 
 			for _, item := range alt.itens {

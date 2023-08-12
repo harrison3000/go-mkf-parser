@@ -8,18 +8,19 @@ package mkf
 import "regexp"
 
 type Parser struct {
-	mrules map[string]int
+	mrules map[string]int //TODO map[string]*rule
 	rules  []rule
+	root   int
 }
 
 type rule struct {
-	name string
-	alt  []alternative
+	name       string
+	alt        []alternative
+	allowEmpty bool
 }
 
 type alternative struct {
 	itens []item
-	empty bool
 }
 
 type item struct {
@@ -57,5 +58,14 @@ type complexRange struct {
 
 type runeRange [2]rune
 
-type Result struct {
+type Node struct {
+	childs []*Node
+	rule   string
+	val    string
+}
+
+type parseEnviroment struct {
+	parser *Parser
+	input  *strReader
+	depth  int
 }
