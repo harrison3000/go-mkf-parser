@@ -38,8 +38,8 @@ const (
 )
 
 type altToken struct {
-	typ tokensTy
 	val string
+	typ tokensTy
 }
 
 func str2alt(s string, allowEmpty bool) (alternative, error) {

@@ -9,6 +9,8 @@ import (
 	"fmt"
 )
 
+//TODO save lines to have a kind of "code coverage" for the grammar
+
 func (p *Parser) ParseString(s string) (*Node, error) {
 	if len(p.rules) == 0 {
 		return nil, fmt.Errorf("empty grammar")

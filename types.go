@@ -24,10 +24,10 @@ type alternative struct {
 }
 
 type item struct {
-	lit string
-
 	complexRange *complexRange
 	regex        *regexp.Regexp
+
+	lit string
 
 	runes runeRange
 	typ   itemType
@@ -52,16 +52,16 @@ type grammarParseError struct {
 }
 
 type complexRange struct {
-	base     runeRange
 	excludes []runeRange
+	base     runeRange
 }
 
 type runeRange [2]rune
 
 type Node struct {
-	childs []*Node
 	rule   string
 	val    string
+	childs []*Node
 }
 
 type parseEnviroment struct {
