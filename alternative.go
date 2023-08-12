@@ -179,7 +179,8 @@ func tksToItem(tks []altToken) (item, int, error) {
 	if isSingleton(tks) {
 		var ret item
 		ret.kind = itemRune
-		ret.runes[0] = tks[0].convertRune()
+		r := tks[0].convertRune()
+		ret.runes = runeRange{r, r}
 		return ret, 1, nil
 	}
 	if !isRange(tks) {

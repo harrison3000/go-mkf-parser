@@ -67,9 +67,10 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 
 	for _, v := range alt.itens {
 		switch v.kind {
-		case itemRune:
-			c, l, e := pe.input.ReadRune()
-			if e != nil || c != v.runes[0] {
+		case itemRune, itemSimpleRange:
+			c, l, _ := pe.input.ReadRune()
+			//TODO what about the error?
+			if !v.runes.inRange(c) {
 				fail()
 				return nil, false
 			}
