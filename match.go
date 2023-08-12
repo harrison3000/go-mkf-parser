@@ -62,7 +62,8 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 
 	fail := pe.input.PopPos
 
-	len := 0
+	rest := pe.input.GetStr()
+	vLen := 0
 	var kids []*Node
 
 	for _, v := range alt.itens {
@@ -74,9 +75,9 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 				fail()
 				return nil, false
 			}
-			len += l
+			vLen += l
 			kids = append(kids, &Node{
-				val: string(c),
+				val: string(c), //TODO remove this alloc
 			})
 
 		case itemRule:
@@ -85,7 +86,7 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 				fail()
 				return nil, false
 			}
-			//TODO increase len
+			vLen += len(n.val)
 			kids = append(kids, n)
 
 		case itemRegex:
@@ -101,11 +102,12 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 				return nil, false
 			}
 
-			len += res[1]
+			val := str[:res[1]]
+			vLen += res[1]
 			pe.input.skip(res[1])
 
 			kids = append(kids, &Node{
-				val: str[:res[1]],
+				val: val,
 			})
 
 		default:
@@ -113,7 +115,9 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 		}
 	}
 
+	val := rest[:vLen]
 	return &Node{
 		childs: kids,
+		val:    val,
 	}, true
 }

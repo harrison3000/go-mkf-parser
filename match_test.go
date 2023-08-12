@@ -45,6 +45,8 @@ ws
 			t.Error("Shouldn't have failed: ", e)
 		} else if res == nil {
 			t.Error("Shouldn't be nil result")
+		} else if res.val != s {
+			t.Errorf("Wrong node value, expected: %v, got %v", s, res.val)
 		} else {
 			t.Log("Ok")
 		}
@@ -52,7 +54,8 @@ ws
 	}
 
 	mustGoRight("[7]")
-	mustGoRight("[720]")
+	mustGoRight("[729]")
+	mustGoRight("[72,899]")
 	mustGoRight("[720,444,22,123,5, 123 ,123]")
 
 	_, e = p.ParseString("[ 720,444,22,123,5, 1z23 ,12]")
