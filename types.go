@@ -8,7 +8,7 @@ package mkf
 import "regexp"
 
 type Parser struct {
-	mrules map[string]int //TODO map[string]*rule
+	byName map[string]*rule
 	rules  []rule
 	root   int
 }

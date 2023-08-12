@@ -23,8 +23,8 @@ func NewParser(grammar string) (*Parser, error) {
 
 	used := map[string]bool{}
 
-	mrules := map[string]int{} // TODO store the index and put it in Parser
-	var curr rule              //current rule
+	mrules := map[string]bool{}
+	var curr rule //current rule
 
 	var rules []rule
 
@@ -44,13 +44,13 @@ func NewParser(grammar string) (*Parser, error) {
 				return nil, newParseError("unexpected content after rule name", k)
 			}
 
-			if _, ok := mrules[n]; ok {
+			if mrules[n] {
 				return nil, newParseError("duplicate rule", k)
 			}
 			if curr.name != "" {
 				push()
 			}
-			mrules[n] = len(rules)
+			mrules[n] = true
 			curr.name = n
 			continue
 		}
@@ -92,11 +92,17 @@ func NewParser(grammar string) (*Parser, error) {
 		}
 	}
 
+	rbn := map[string]*rule{} //rules by name
+	for k := range rules {
+		v := &rules[k]
+		rbn[v.name] = v
+	}
+
 	//TODO warn unused?
 
 	return &Parser{
 		rules:  rules,
-		mrules: mrules,
+		byName: rbn,
 	}, nil
 }
 

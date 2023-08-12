@@ -39,8 +39,7 @@ func (pe *parseEnviroment) matchRule(rule string, input string) (*Node, bool) {
 		pe.depth--
 	}()
 
-	ruleidx := pe.parser.mrules[rule] // TODO check ok, just to be sure
-	r := &pe.parser.rules[ruleidx]
+	r := pe.parser.byName[rule]
 
 	var ret *Node
 
