@@ -24,10 +24,10 @@ var (
 	regReg     = regexp.MustCompile(`^/((\\/|[^/])*)/`)
 )
 
-type tokensTy int
+type tokenKind int
 
 const (
-	tkInvalid tokensTy = iota
+	tkInvalid tokenKind = iota
 	tkEmpty
 	tkLiteral
 	tkSingleton
@@ -38,8 +38,8 @@ const (
 )
 
 type altToken struct {
-	val string
-	typ tokensTy
+	val  string
+	kind tokenKind
 }
 
 func str2alt(s string, allowEmpty bool) (alternative, error) {
@@ -47,10 +47,10 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 	if e != nil {
 		return alternative{}, e
 	}
-	if allowEmpty && len(tks) == 1 && tks[0].typ == tkEmpty {
+	if allowEmpty && len(tks) == 1 && tks[0].kind == tkEmpty {
 		return alternative{
 			itens: []item{
-				{typ: itemEmpty},
+				{kind: itemEmpty},
 			},
 		}, nil
 	}
@@ -63,15 +63,15 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 	for i := 0; i < len(tks); i++ {
 		v := &tks[i]
 
-		switch v.typ {
+		switch v.kind {
 		case tkEmpty:
 			return alternative{}, fmt.Errorf("unallowed empty found")
 		case tkLiteral:
 			//TODO possible optimization: single char strings -> singleton
 
 			push(item{
-				typ: itemLiteral,
-				lit: v.val,
+				kind: itemLiteral,
+				lit:  v.val,
 			})
 		case tkSingleton:
 			it, skip, err := tksToItem(tks[i:])
@@ -89,14 +89,14 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 				return alternative{}, fmt.Errorf("error compiling regex: %w", e)
 			}
 			push(item{
-				typ:   itemRegex,
+				kind:  itemRegex,
 				regex: r,
 			})
 
 		case tkRule:
 			push(item{
-				typ: itemRule,
-				lit: v.val,
+				kind: itemRule,
+				lit:  v.val,
 			})
 
 		default:
@@ -111,15 +111,15 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 	orig := s
 	var tks []altToken
 
-	consume := func(regex *regexp.Regexp, typ tokensTy) bool {
+	consume := func(regex *regexp.Regexp, tKind tokenKind) bool {
 		val, rest, ok := consumeRegex(s, regex)
 		if !ok {
 			return false
 		}
 
 		tks = append(tks, altToken{
-			typ: typ,
-			val: val,
+			kind: tKind,
+			val:  val,
 		})
 		s = rest
 		return true
@@ -178,7 +178,7 @@ func (tk *altToken) convertRune() rune {
 func tksToItem(tks []altToken) (item, int, error) {
 	if isSingleton(tks) {
 		var ret item
-		ret.typ = itemRune
+		ret.kind = itemRune
 		ret.runes[0] = tks[0].convertRune()
 		return ret, 1, nil
 	}
@@ -206,7 +206,7 @@ func tksToItem(tks []altToken) (item, int, error) {
 	var inception func() error
 
 	inception = func() error {
-		if len(tks) == 0 || tks[0].typ != tkMinus {
+		if len(tks) == 0 || tks[0].kind != tkMinus {
 			return nil
 		}
 		consume(1) //the minus
@@ -232,7 +232,7 @@ func tksToItem(tks []altToken) (item, int, error) {
 	}
 
 	i := item{
-		typ:   itemSimpleRange,
+		kind:  itemSimpleRange,
 		runes: base,
 	}
 	if len(excludes) != 0 {
@@ -241,7 +241,7 @@ func tksToItem(tks []altToken) (item, int, error) {
 			return item{}, 0, fmt.Errorf("invalid exclusion range")
 		}
 		i = item{
-			typ:          itemComplexRange,
+			kind:         itemComplexRange,
 			complexRange: cplx,
 		}
 	}
@@ -254,7 +254,7 @@ func isSingleton(tks []altToken) bool {
 		return true
 	}
 
-	t := tks[1].typ
+	t := tks[1].kind
 	return t != tkDot
 }
 
@@ -262,13 +262,13 @@ func isRange(tks []altToken) bool {
 	if len(tks) < 3 {
 		return false
 	}
-	a := tks[0].typ == tkSingleton
-	b := tks[1].typ == tkDot
-	c := tks[2].typ == tkSingleton
+	a := tks[0].kind == tkSingleton
+	b := tks[1].kind == tkDot
+	c := tks[2].kind == tkSingleton
 
 	return a && b && c
 }
 
 func (a *alternative) isEmpty() bool {
-	return len(a.itens) == 1 && a.itens[0].typ == itemEmpty
+	return len(a.itens) == 1 && a.itens[0].kind == itemEmpty
 }

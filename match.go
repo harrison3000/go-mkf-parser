@@ -66,7 +66,7 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 	var kids []*Node
 
 	for _, v := range alt.itens {
-		switch v.typ {
+		switch v.kind {
 		case itemRune:
 			c, l, e := pe.input.ReadRune()
 			if e != nil || c != v.runes[0] {

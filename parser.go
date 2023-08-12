@@ -73,7 +73,7 @@ func NewParser(grammar string) (*Parser, error) {
 			}
 
 			for _, item := range alt.itens {
-				if item.typ == itemRule {
+				if item.kind == itemRule {
 					used[item.lit] = true
 				}
 			}

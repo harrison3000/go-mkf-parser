@@ -30,13 +30,13 @@ type item struct {
 	lit string
 
 	runes runeRange
-	typ   itemType
+	kind  itemKind
 }
 
-type itemType int8
+type itemKind int8
 
 const (
-	itemInvalid itemType = iota
+	itemInvalid itemKind = iota
 	itemLiteral
 	itemEmpty
 	itemRune

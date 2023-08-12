@@ -26,19 +26,19 @@ tost
 	_ = p
 }
 
-func TestS2ATypes(t *testing.T) {
-	doTest := func(alt string, allowEmpty bool, types ...itemType) {
+func TestS2AKinds(t *testing.T) {
+	doTest := func(alt string, allowEmpty bool, kinds ...itemKind) {
 		a, e := str2alt(" "+alt, allowEmpty)
 		if e != nil {
 			t.Errorf("Error parsing alternative: %s", e)
 			return
 		}
-		if lg, le := len(a.itens), len(types); lg != le {
+		if lg, le := len(a.itens), len(kinds); lg != le {
 			t.Errorf("Wrong size, expected: %d, got: %d", le, lg)
 			return
 		}
 		for k, v := range a.itens {
-			if v.typ != types[k] {
+			if v.kind != kinds[k] {
 				t.Error("Wrong type")
 			}
 		}
