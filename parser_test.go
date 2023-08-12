@@ -80,3 +80,9 @@ test
 		t.Fatal("False positive")
 	}
 }
+
+func BenchmarkCompilation(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		NewParser(testArrayParser)
+	}
+}

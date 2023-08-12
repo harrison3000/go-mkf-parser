@@ -21,6 +21,7 @@ values
 arrElement
 	ws decValue ws
 	ws hexValue ws
+	ws array	ws
 
 hexValue
 	/^0x[A-Fa-f0-9]+/
@@ -96,4 +97,25 @@ rootRule
 
 }
 
-//TODO complex range test
+func BenchmarkParsing(b *testing.B) {
+	p, e := NewParser(testArrayParser)
+	if e != nil {
+		b.Fatalf("Error compiling grammar: %s", e)
+	}
+
+	mustGoRight := func(s string) {
+		r, e := p.ParseString(s)
+		if r == nil || e != nil {
+			b.Fatal("failed parsing ")
+		}
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		mustGoRight(`[720,444,22,123,5, 123 ,123]`)
+		mustGoRight(`[720, 4654844, 287982, 123, 5546, 0xccc123 ,0xfba123]`)
+		mustGoRight(`[720, 4654844, 287982, 
+		[1234125,0x1234125ab61234,12341243123,0x123f51265134652,2345234562345,234623452345],
+		123, 5546, 0xccc123 ,0xfba123]`)
+	}
+}

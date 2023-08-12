@@ -28,6 +28,8 @@ func (p *Parser) ParseString(s string) (*Node, error) {
 		return nil, fmt.Errorf("input doesn't match grammar")
 	}
 
+	//TODO what if the end of strings isn't reached?
+
 	return n, nil
 }
 
