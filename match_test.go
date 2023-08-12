@@ -7,8 +7,7 @@ package mkf
 
 import "testing"
 
-func TestMatch(t *testing.T) {
-	p, e := NewParser(`
+const testArrayParser = `
 rootRule
 	array
 
@@ -20,10 +19,14 @@ values
 	arrElement ',' values
 
 arrElement
-	ws value ws
+	ws decValue ws
+	ws hexValue ws
 
-value
-	digit value //TODO tail call optimization (?)
+hexValue
+	/^0x[A-Fa-f0-9]+/
+
+decValue
+	digit decValue //TODO tail call optimization (?)
 	digit
 
 digit
@@ -32,7 +35,10 @@ digit
 ws
 	""
 	/^\s+/
-	`)
+	`
+
+func TestMatch(t *testing.T) {
+	p, e := NewParser(testArrayParser)
 
 	if e != nil {
 		t.Fatalf("Should be nil: %s", e)
