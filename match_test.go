@@ -23,6 +23,10 @@ arrElement
 	ws value ws
 
 value
+	digit value //TODO tail call optimization (?)
+	digit
+
+digit
 	'0' . '9'
 
 ws
@@ -34,12 +38,22 @@ ws
 		t.Fatalf("Should be nil: %s", e)
 	}
 
-	res, e := p.ParseString("[720,444,22,123,5, 123 ,123]")
-	if e != nil {
-		t.Error("Shouldn't have failed: ", e)
+	mustGoRight := func(s string) *Node {
+		res, e := p.ParseString(s)
+		t.Logf("Now testing: %s", s)
+		if e != nil {
+			t.Error("Shouldn't have failed: ", e)
+		} else if res == nil {
+			t.Error("Shouldn't be nil result")
+		} else {
+			t.Log("Ok")
+		}
+		return res
 	}
 
-	_ = res
+	mustGoRight("[7]")
+	mustGoRight("[720]")
+	mustGoRight("[720,444,22,123,5, 123 ,123]")
 
 	_, e = p.ParseString("[ 720,444,22,123,5, 1z23 ,12]")
 	if e == nil {
