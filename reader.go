@@ -44,3 +44,7 @@ func (sr *strReader) pos() int64 {
 func (sr *strReader) GetStr() string {
 	return sr.original[sr.pos():]
 }
+
+func (sr *strReader) skip(len int) {
+	sr.Seek(int64(len), io.SeekCurrent)
+}

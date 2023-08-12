@@ -79,7 +79,28 @@ func (pe *parseEnviroment) tryAlternative(alt alternative) (*Node, bool) {
 				fail()
 				return nil, false
 			}
+			//TODO increase len
 			kids = append(kids, n)
+
+		case itemRegex:
+			str := pe.input.GetStr()
+			res := v.regex.FindStringIndex(str)
+			if res == nil {
+				fail()
+				return nil, false
+			}
+			if res[0] != 0 {
+				//TODO explain why
+				fail()
+				return nil, false
+			}
+
+			len += res[1]
+			pe.input.skip(res[1])
+
+			kids = append(kids, &Node{
+				val: str[:res[1]],
+			})
 
 		default:
 			panic("eita deu errado")
