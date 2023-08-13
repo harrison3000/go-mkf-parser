@@ -8,6 +8,7 @@ package mkf
 import (
 	"fmt"
 	"regexp"
+	"regexp/syntax"
 	"strconv"
 	"strings"
 )
@@ -83,11 +84,14 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 
 		case tkRegex:
 			unescaped := strings.ReplaceAll(v.val, `\/`, "/")
-			//TODO warn on regexes that don't start with ^
 			r, e := regexp.Compile(unescaped)
 			if e != nil {
 				return alternative{}, fmt.Errorf("error compiling regex: %w", e)
 			}
+			if !goodRegex(unescaped) {
+				return alternative{}, fmt.Errorf("regexes must be anchored at the begining (^)")
+			}
+
 			push(item{
 				kind:  itemRegex,
 				regex: r,
@@ -272,4 +276,15 @@ func isRange(tks []altToken) bool {
 
 func (a *alternative) isEmpty() bool {
 	return len(a.itens) == 1 && a.itens[0].kind == itemEmpty
+}
+
+func goodRegex(s string) bool {
+	//this only runs after the compilation, so we don't have to check errors
+	rg, _ := syntax.Parse(s, syntax.Perl)
+	si := rg.Simplify()
+	prog, _ := syntax.Compile(si)
+
+	sc := prog.StartCond()
+
+	return sc == syntax.EmptyBeginText
 }
