@@ -77,7 +77,8 @@ func TestMatch(t *testing.T) {
 
 	p, e = NewParser(`
 rootRule
-	'a' . 'z' - 'p' - 'd' . 'f'
+	'a' . 'z' - 'p' - 'd' . 'f' - l
+	"literal"
 	`)
 
 	if e != nil {
@@ -88,12 +89,14 @@ rootRule
 	mustGoRight("t")
 	mustGoRight("q")
 	mustGoRight("z")
+	mustGoRight("literal")
 
 	mustFail("A")
 	mustFail("p")
 	mustFail("f")
 	mustFail("e")
 	mustFail("d")
+	mustFail("l")
 
 }
 

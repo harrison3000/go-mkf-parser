@@ -7,6 +7,7 @@ package mkf
 
 import (
 	"fmt"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -119,6 +120,15 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 
 			push(&Node{
 				val: val,
+			})
+
+		case itemLiteral:
+			ok := strings.HasPrefix(s, v.lit)
+			if !ok {
+				return nil, false
+			}
+			push(&Node{
+				val: v.lit,
 			})
 
 		default:
