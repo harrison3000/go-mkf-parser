@@ -72,6 +72,11 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 	vLen := 0
 	var kids []*Node
 
+	push := func(n *Node) {
+		vLen += len(n.val)
+		kids = append(kids, n)
+	}
+
 	for _, v := range alt.itens {
 		s := input[vLen:]
 
@@ -88,8 +93,8 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 			if !ok {
 				return nil, false
 			}
-			vLen += l
-			kids = append(kids, &Node{
+
+			push(&Node{
 				val: s[:l],
 			})
 
@@ -98,8 +103,7 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 			if !ok {
 				return nil, false
 			}
-			vLen += len(n.val)
-			kids = append(kids, n)
+			push(n)
 
 		case itemRegex:
 			res := v.regex.FindStringIndex(s)
@@ -112,14 +116,13 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 			}
 
 			val := s[:res[1]]
-			vLen += res[1]
 
-			kids = append(kids, &Node{
+			push(&Node{
 				val: val,
 			})
 
 		default:
-			panic("eita deu errado")
+			panic("item kind not implemented")
 		}
 	}
 
