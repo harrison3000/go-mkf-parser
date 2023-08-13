@@ -52,7 +52,7 @@ func TestS2AKinds(t *testing.T) {
 		itemSimpleRange,
 	)
 
-	doTest(`"hi" 'b' . 'd' 'a' . 'z' - 't' . 'v' - 'h' /a \/ aa/ '10ABCD'`, false,
+	doTest(`"hi" 'b' . 'd' 'a' . 'z' - 't' . 'v' - 'h' /^a \/ aa/ '10ABCD'`, false,
 		itemLiteral,
 		itemSimpleRange,
 		itemComplexRange,
