@@ -44,7 +44,7 @@ func (pe *parseEnviroment) matchRule(rule string, input string) (*Node, bool) {
 
 	var ret *Node
 
-	for _, v := range r.alt {
+	for _, v := range r.alternatives {
 		n, ok := pe.tryAlternative(v, input)
 		if !ok {
 			continue

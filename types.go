@@ -14,9 +14,9 @@ type Parser struct {
 }
 
 type rule struct {
-	name       string
-	alt        []alternative
-	allowEmpty bool
+	name         string
+	alternatives []alternative
+	allowEmpty   bool
 }
 
 type alternative struct {

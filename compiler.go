@@ -59,7 +59,7 @@ func NewParser(grammar string) (*Parser, error) {
 			if curr.name == "" {
 				return nil, newParseError("orphaned alternative", k)
 			}
-			allowEmpty := len(curr.alt) == 0
+			allowEmpty := len(curr.alternatives) == 0
 
 			alt, err := str2alt(v, allowEmpty)
 			if err != nil {
@@ -78,11 +78,14 @@ func NewParser(grammar string) (*Parser, error) {
 				}
 			}
 
-			curr.alt = append(curr.alt, alt)
+			curr.alternatives = append(curr.alternatives, alt)
 			continue
 		}
 		return nil, newParseError("unable to parse grammar", k)
 	}
+
+	//TODO check if rules with  allow empty have other alternatives
+	//TODO check infinite loops
 
 	push()
 
