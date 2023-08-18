@@ -26,6 +26,7 @@ var (
 
 	regKnot = regexp.MustCompile(`^(§)`)
 
+	regWhat  = regexp.MustCompile(`^(\?)`)
 	regPlus  = regexp.MustCompile(`^(\+)`)
 	regStar  = regexp.MustCompile(`^(\*)`)
 	regRange = regexp.MustCompile(`^({\d+,\d+})`)
@@ -158,6 +159,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 			consume(regReg, tkRegex),
 			consume(ruleName, tkRule),
 
+			consume(regWhat, tkRuleRange),
 			consume(regRange, tkRuleRange),
 			consume(regPlus, tkRuleRange),
 			consume(regStar, tkRuleRange),

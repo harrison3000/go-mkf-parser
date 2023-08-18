@@ -71,6 +71,33 @@ func TestS2AKinds(t *testing.T) {
 	doTestError(` 'a'.'z'`, true)     //no space sparating
 }
 
+func TestAltTokenizer(t *testing.T) {
+	doTest := func(alt string, kinds ...tokenKind) {
+		a, e := tokenizeAlternative(" " + alt)
+		if e != nil {
+			t.Errorf("Error parsing alternative: %s", e)
+			return
+		}
+		if lg, le := len(a), len(kinds); lg != le {
+			t.Errorf("Wrong size, expected: %d, got: %d", le, lg)
+			return
+		}
+		for k, v := range a {
+			if v.kind != kinds[k] {
+				t.Error("Wrong type")
+			}
+		}
+	}
+
+	doTest(`aaa* aaa+ aaa? aaa{2,5} bbbb§iiii`,
+		tkRule, tkRuleRange,
+		tkRule, tkRuleRange,
+		tkRule, tkRuleRange,
+		tkRule, tkRuleRange,
+		tkRule, tkRuleOperator, tkRule,
+	)
+}
+
 func TestNotExists(t *testing.T) {
 	_, e := NewParser(`
 test
