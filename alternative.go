@@ -23,6 +23,12 @@ var (
 	regdot     = regexp.MustCompile(`^(\.)`)
 	regminus   = regexp.MustCompile(`^(-)`)
 	regReg     = regexp.MustCompile(`^/((\\/|[^/])*)/`)
+
+	regKnot = regexp.MustCompile(`^(§)`)
+
+	regPlus  = regexp.MustCompile(`^(\+)`)
+	regStar  = regexp.MustCompile(`^(\*)`)
+	regRange = regexp.MustCompile(`^({\d+,\d+})`)
 )
 
 type tokenKind int
@@ -36,6 +42,8 @@ const (
 	tkMinus
 	tkRegex
 	tkRule
+	tkRuleRange
+	tkRuleOperator
 )
 
 type altToken struct {
@@ -148,7 +156,13 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 			consume(regdot, tkDot),
 			consume(regminus, tkMinus),
 			consume(regReg, tkRegex),
-			consume(ruleName, tkRule):
+			consume(ruleName, tkRule),
+
+			consume(regRange, tkRuleRange),
+			consume(regPlus, tkRuleRange),
+			consume(regStar, tkRuleRange),
+
+			consume(regKnot, tkRuleOperator):
 
 		default:
 			col := len(orig) - len(s)
