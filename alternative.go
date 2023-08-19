@@ -15,7 +15,9 @@ import (
 
 // matcher typers
 var (
-	empty      = regexp.MustCompile(`^"()"`)
+	empty    = regexp.MustCompile(`^"()"`)
+	regSpace = regexp.MustCompile(`^([\t ]+)`)
+
 	literal    = regexp.MustCompile(`^"([^"\p{Cc}]+)"`)
 	singleRune = regexp.MustCompile(`^'([^\p{C}])'`)
 	simpleHex  = regexp.MustCompile(`^'([0-9A-F]{4,5})'`)
@@ -32,19 +34,20 @@ var (
 	regRange = regexp.MustCompile(`^({\d+,\d+})`)
 )
 
-type tokenKind int
+type tokenKind rune
 
 const (
-	tkInvalid tokenKind = iota
-	tkEmpty
-	tkLiteral
-	tkSingleton
-	tkDot
-	tkMinus
-	tkRegex
-	tkRule
-	tkRuleRange
-	tkRuleOperator
+	tkInvalid      tokenKind = 0
+	tkEmpty        tokenKind = 'E'
+	tkLiteral      tokenKind = 'L'
+	tkSingleton    tokenKind = 'S'
+	tkDot          tokenKind = '.'
+	tkMinus        tokenKind = '-'
+	tkRegex        tokenKind = 'r'
+	tkRule         tokenKind = 'R'
+	tkRuleRange    tokenKind = '#'
+	tkRuleOperator tokenKind = '§'
+	tkWhiteSpace   tokenKind = ' '
 )
 
 type altToken struct {
@@ -138,18 +141,12 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 		return true
 	}
 
-	const maxTokens = 20
+	const maxTokens = 128
 	for i := 0; i < maxTokens; i++ {
-		sut := strings.TrimLeft(s, " \t")
-		if sut == s { //didn't trim
-			col := len(orig) - len(s)
-			return nil, fmt.Errorf("required space not found at column %d", col)
-		}
-		s = sut
-
 		switch {
 		case
 			consume(empty, tkEmpty),
+			consume(regSpace, tkWhiteSpace),
 			consume(literal, tkLiteral),
 			consume(singleRune, tkSingleton),
 			consume(simpleHex, tkSingleton),
@@ -172,7 +169,7 @@ func tokenizeAlternative(s string) ([]altToken, error) {
 		}
 
 		if isEmptyOrComment(s) {
-			return tks, nil
+			return validateAndFilterAltTokens(tks)
 		}
 	}
 
@@ -303,4 +300,49 @@ func goodRegex(s string) bool {
 	sc := prog.StartCond()
 
 	return sc == syntax.EmptyBeginText
+}
+
+// validateAndFilterAltTokens uses forbidden techniques to detect
+// if a alternative is valid and removes the whitespaces
+func validateAndFilterAltTokens(tks []altToken) ([]altToken, error) {
+	var rr []rune
+	for _, v := range tks {
+		rr = append(rr, rune(v.kind))
+	}
+	synt := string(rr) + " "
+
+	//TODO make this a global?
+	//are replacers goroutine safe?
+	repl := strings.NewReplacer(
+		" L ", " ! ",
+		" r ", " ! ",
+		" R§R ", " ! ",
+		" R§S ", " ! ",
+		" R# ", " ! ",
+		" R ", " ! ",
+		" S . S ", " ! ",
+		" S.S ", " ! ",
+		" S ", " ! ",
+	)
+
+	//we do replace twice because the spaces must overlap
+	syntf := repl.Replace(synt)
+	syntf = repl.Replace(syntf)
+
+	if strings.ContainsRune(syntf, '§') {
+		return nil, fmt.Errorf("misuse of the § operator")
+	}
+
+	if strings.Trim(syntf, "! ") != "" {
+		return nil, fmt.Errorf("unrecognized alternative")
+	}
+
+	var ret []altToken
+	for _, t := range tks {
+		if t.kind != tkWhiteSpace {
+			ret = append(ret, t)
+		}
+	}
+
+	return ret, nil
 }
