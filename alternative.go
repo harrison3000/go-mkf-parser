@@ -310,24 +310,25 @@ func validateAndFilterAltTokens(tks []altToken) ([]altToken, error) {
 		rr = append(rr, rune(v.kind))
 	}
 	synt := string(rr) + " "
+	syntf := synt
 
-	//TODO make this a global?
-	//are replacers goroutine safe?
-	repl := strings.NewReplacer(
-		" L ", " ! ",
-		" r ", " ! ",
-		" R§R ", " ! ",
-		" R§S ", " ! ",
-		" R# ", " ! ",
-		" R ", " ! ",
-		" S . S ", " ! ",
-		" S.S ", " ! ",
-		" S ", " ! ",
-	)
+	good := []string{
+		" L ", " r ",
+		" R§R ", " R§S ",
+		" R# ", " R ",
+		" S . S ", " S.S ", " S ",
+		" - ",
+		" E ", //this should be a special case, only one empty is allowed
+	}
 
-	//we do replace twice because the spaces must overlap
-	syntf := repl.Replace(synt)
-	syntf = repl.Replace(syntf)
+	for _, g := range good {
+		rep := " ! "
+		//we do replace twice because the spaces must overlap
+		//we don't use stringsReplacer because the order matters
+		//it must be each little thing twice, not the whole thing twice
+		a := strings.ReplaceAll(syntf, g, rep)
+		syntf = strings.ReplaceAll(a, g, rep)
+	}
 
 	if strings.ContainsRune(syntf, '§') {
 		return nil, fmt.Errorf("misuse of the § operator")

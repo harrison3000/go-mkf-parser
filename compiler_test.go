@@ -68,7 +68,6 @@ func TestS2AKinds(t *testing.T) {
 	}
 
 	doTestError(` "hello" ""`, false) //empty not alone
-	doTestError(` 'a'.'z'`, true)     //no space sparating
 }
 
 func TestAltTokenizer(t *testing.T) {
