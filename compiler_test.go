@@ -88,7 +88,8 @@ func TestAltTokenizer(t *testing.T) {
 		}
 	}
 
-	doTest(`aaa* aaa+ aaa? aaa{2,5} bbbb§iiii`,
+	doTest(`aaa* aaa+ aaa? aaa{2,5} nnn{2} bbbb§iiii`,
+		tkRule, tkRuleRange,
 		tkRule, tkRuleRange,
 		tkRule, tkRuleRange,
 		tkRule, tkRuleRange,

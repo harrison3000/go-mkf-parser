@@ -31,7 +31,7 @@ var (
 	regWhat  = regexp.MustCompile(`^(\?)`)
 	regPlus  = regexp.MustCompile(`^(\+)`)
 	regStar  = regexp.MustCompile(`^(\*)`)
-	regRange = regexp.MustCompile(`^({\d+,\d+})`)
+	regRange = regexp.MustCompile(`^({\d+(,\d+)?})`)
 )
 
 type tokenKind rune
