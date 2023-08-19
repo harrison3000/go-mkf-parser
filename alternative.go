@@ -105,8 +105,8 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 			}
 
 			push(item{
-				kind:  itemRegex,
-				regex: r,
+				kind: itemComplex,
+				cplx: (*cplxRegex)(r),
 			})
 
 		case tkRule:
@@ -197,7 +197,7 @@ func (tk *altToken) convertRune() rune {
 func tksToRange(tks []altToken) (item, int, error) {
 	if isSingleton(tks) {
 		var ret item
-		ret.kind = itemRune
+		ret.kind = itemSimpleRuneRange
 		r := tks[0].convertRune()
 		ret.runes = runeRange{r, r}
 		return ret, 1, nil
@@ -252,7 +252,7 @@ func tksToRange(tks []altToken) (item, int, error) {
 	}
 
 	i := item{
-		kind:  itemSimpleRange,
+		kind:  itemSimpleRuneRange,
 		runes: base,
 	}
 	if len(excludes) != 0 {
@@ -261,8 +261,8 @@ func tksToRange(tks []altToken) (item, int, error) {
 			return item{}, 0, fmt.Errorf("invalid exclusion range")
 		}
 		i = item{
-			kind:         itemComplexRange,
-			complexRange: cplx,
+			kind: itemComplexRange,
+			cplx: cplx,
 		}
 	}
 

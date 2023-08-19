@@ -7,6 +7,7 @@ package mkf
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -82,12 +83,13 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 		s := input[vLen:]
 
 		switch v.kind {
-		case itemRune, itemSimpleRange, itemComplexRange:
+		case itemSimpleRuneRange, itemComplexRange:
 			c, l := utf8.DecodeRuneInString(s)
 			//TODO what about the error?
 			var ok bool
 			if v.kind == itemComplexRange {
-				ok = v.complexRange.inRange(c)
+				vc := v.cplx.(*complexRange)
+				ok = vc.inRange(c)
 			} else {
 				ok = v.runes.inRange(c)
 			}
@@ -99,28 +101,22 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 				val: s[:l],
 			})
 
+		case itemComplex:
+			v, ok := v.cplx.match(s)
+			if !ok {
+				return nil, false
+			}
+
+			push(&Node{
+				val: v,
+			})
+
 		case itemRule:
 			n, ok := pe.matchRule(v.lit, s)
 			if !ok {
 				return nil, false
 			}
 			push(n)
-
-		case itemRegex:
-			res := v.regex.FindStringIndex(s)
-			if res == nil {
-				return nil, false
-			}
-			if res[0] != 0 {
-				//TODO explain why
-				return nil, false
-			}
-
-			val := s[:res[1]]
-
-			push(&Node{
-				val: val,
-			})
 
 		case itemLiteral:
 			ok := strings.HasPrefix(s, v.lit)
@@ -141,4 +137,20 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 		childs: kids,
 		val:    val,
 	}, true
+}
+
+func (cr *cplxRegex) match(in string) (string, bool) {
+	r := (*regexp.Regexp)(cr)
+	res := r.FindStringIndex(in)
+	if res == nil {
+		return "", false
+	}
+	if res[0] != 0 {
+		//regexes are checked to have a ^ anchor
+		panic("impossible")
+	}
+
+	val := in[:res[1]]
+
+	return val, true
 }

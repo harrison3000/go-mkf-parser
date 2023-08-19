@@ -48,16 +48,16 @@ func TestS2AKinds(t *testing.T) {
 
 	doTest(`"hello" 'a' 'f' . 't'`, false,
 		itemLiteral,
-		itemRune,
-		itemSimpleRange,
+		itemSimpleRuneRange,
+		itemSimpleRuneRange,
 	)
 
 	doTest(`"hi" 'b' . 'd' 'a' . 'z' - 't' . 'v' - 'h' /^a \/ aa/ '10ABCD'`, false,
 		itemLiteral,
-		itemSimpleRange,
+		itemSimpleRuneRange,
 		itemComplexRange,
-		itemRegex,
-		itemRune,
+		itemComplex,
+		itemSimpleRuneRange,
 	)
 
 	doTestError := func(alt string, allowEmpty bool) {

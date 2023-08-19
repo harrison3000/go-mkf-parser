@@ -41,3 +41,8 @@ func (r runeRange) valid() bool {
 func (r runeRange) inRange(char rune) bool {
 	return r[0] <= char && char <= r[1]
 }
+
+// match only exists to implement the matcher interface
+func (c *complexRange) match(string) (string, bool) {
+	panic("shouldn't be here")
+}

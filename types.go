@@ -23,9 +23,12 @@ type alternative struct {
 	itens []item
 }
 
+type cMatcher interface {
+	match(string) (string, bool)
+}
+
 type item struct {
-	complexRange *complexRange
-	regex        *regexp.Regexp
+	cplx cMatcher
 
 	lit string
 
@@ -39,10 +42,9 @@ const (
 	itemInvalid itemKind = iota
 	itemLiteral
 	itemEmpty
-	itemRune
-	itemSimpleRange
+	itemSimpleRuneRange
 	itemComplexRange
-	itemRegex
+	itemComplex
 	itemRule
 )
 
@@ -68,3 +70,5 @@ type parseEnviroment struct {
 	parser *Parser
 	depth  int
 }
+
+type cplxRegex regexp.Regexp
