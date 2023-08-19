@@ -87,7 +87,7 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 				lit:  v.val,
 			})
 		case tkSingleton:
-			it, skip, err := tksToItem(tks[i:])
+			it, skip, err := tksToRange(tks[i:])
 			if err != nil {
 				return alternative{}, fmt.Errorf("error interpreting range: %w", err)
 			}
@@ -110,10 +110,12 @@ func str2alt(s string, allowEmpty bool) (alternative, error) {
 			})
 
 		case tkRule:
-			push(item{
-				kind: itemRule,
-				lit:  v.val,
-			})
+			it, skip, err := tksToRule(tks[i:])
+			if err != nil {
+				return alternative{}, fmt.Errorf("error interpreting rule: %w", err)
+			}
+			i += skip - 1
+			push(it)
 
 		default:
 			return alternative{}, fmt.Errorf("unexpected token")
@@ -192,7 +194,7 @@ func (tk *altToken) convertRune() rune {
 	return rune(num)
 }
 
-func tksToItem(tks []altToken) (item, int, error) {
+func tksToRange(tks []altToken) (item, int, error) {
 	if isSingleton(tks) {
 		var ret item
 		ret.kind = itemRune
@@ -313,21 +315,22 @@ func validateAndFilterAltTokens(tks []altToken) ([]altToken, error) {
 	syntf := synt
 
 	good := []string{
-		" L ", " r ",
-		" R§R ", " R§S ",
-		" R# ", " R ",
-		" S . S ", " S.S ", " S ",
-		" - ",
-		" E ", //this should be a special case, only one empty is allowed
+		"L", "r",
+		"R§R", "R§S",
+		"R#", "R",
+		"S . S", "S.S", "S",
+		"-",
+		"E", //this could be a special case, only one empty is allowed
 	}
 
 	for _, g := range good {
 		rep := " ! "
+		gg := " " + g + " "
 		//we do replace twice because the spaces must overlap
 		//we don't use stringsReplacer because the order matters
 		//it must be each little thing twice, not the whole thing twice
-		a := strings.ReplaceAll(syntf, g, rep)
-		syntf = strings.ReplaceAll(a, g, rep)
+		a := strings.ReplaceAll(syntf, gg, rep)
+		syntf = strings.ReplaceAll(a, gg, rep)
 	}
 
 	if strings.ContainsRune(syntf, '§') {
@@ -346,4 +349,23 @@ func validateAndFilterAltTokens(tks []altToken) ([]altToken, error) {
 	}
 
 	return ret, nil
+}
+
+func tksToRule(tks []altToken) (item, int, error) {
+	var next altToken
+	if len(tks) > 1 {
+		next = tks[1]
+	}
+
+	switch next.kind {
+	case tkRuleRange:
+		panic("not implemented yet")
+	case tkRuleOperator:
+		panic("not implemented yet")
+	default:
+		return item{
+			kind: itemRule,
+			lit:  tks[0].val,
+		}, 1, nil
+	}
 }
