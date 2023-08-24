@@ -5,6 +5,8 @@
 
 package mkf
 
+import "math"
+
 func (k *ruleKnot) match(string) (string, bool) {
 	panic("not implemented 0")
 }
@@ -14,5 +16,22 @@ func (r *ruleRange) match(string) (string, bool) {
 }
 
 func mkRuleRange(rule string, rg string) *ruleRange {
-	panic("not imlemented 2")
+	ret := &ruleRange{
+		rule: rule,
+	}
+	switch rg {
+	case "?":
+		ret.ran = [2]int32{0, 1}
+
+	case "+":
+		ret.ran = [2]int32{1, math.MaxInt32}
+
+	case "*":
+		ret.ran = [2]int32{0, math.MaxInt32}
+
+	default:
+		panic("not imlemented 2")
+	}
+
+	return ret
 }
