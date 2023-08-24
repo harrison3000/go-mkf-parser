@@ -5,7 +5,10 @@
 
 package mkf
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 func (k *ruleKnot) match(string) (string, bool) {
 	panic("not implemented 0")
@@ -30,7 +33,15 @@ func mkRuleRange(rule string, rg string) *ruleRange {
 		ret.ran = [2]int32{0, math.MaxInt32}
 
 	default:
-		panic("not imlemented 2")
+		var a, b int32
+		n, _ := fmt.Sscanf(rg, "{%d,%d}", &a, &b)
+		if n == 1 {
+			ret.ran = [2]int32{a, a}
+		} else if n == 2 {
+			ret.ran = [2]int32{a, b}
+		} else {
+			panic("???")
+		}
 	}
 
 	return ret
