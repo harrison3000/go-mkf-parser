@@ -27,7 +27,7 @@ hexValue
 	/^0x[A-Fa-f0-9]+/
 
 decValue
-	digit decValue //TODO tail call optimization (?)
+	digit decValue
 	digit
 
 digit
@@ -38,6 +38,22 @@ ws
 	/^\s+/
 	`
 
+func mustGoAlright(p *Parser, t *testing.T, s string) *Node {
+	res, e := p.ParseString(s)
+	t.Logf("Now testing: %s", s)
+	if e != nil {
+		t.Error("Shouldn't have failed: ", e)
+	} else if res == nil {
+		t.Error("Shouldn't be nil result")
+	} else if res.val != s {
+		t.Errorf("Wrong node value, expected: %v, got %v", s, res.val)
+	} else {
+		t.Log("Ok")
+	}
+
+	return res
+}
+
 func TestMatch(t *testing.T) {
 	p, e := NewParser(testArrayParser)
 
@@ -46,17 +62,7 @@ func TestMatch(t *testing.T) {
 	}
 
 	mustGoRight := func(s string) *Node {
-		res, e := p.ParseString(s)
-		t.Logf("Now testing: %s", s)
-		if e != nil {
-			t.Error("Shouldn't have failed: ", e)
-		} else if res == nil {
-			t.Error("Shouldn't be nil result")
-		} else if res.val != s {
-			t.Errorf("Wrong node value, expected: %v, got %v", s, res.val)
-		} else {
-			t.Log("Ok")
-		}
+		res := mustGoAlright(p, t, s)
 		return res
 	}
 
@@ -121,4 +127,40 @@ func BenchmarkParsing(b *testing.B) {
 		[1234125,0x1234125ab61234,12341243123,0x123f51265134652,2345234562345,234623452345],
 		123, 5546, 0xccc123 ,0xfba123]`)
 	}
+}
+
+func TestComplexes(t *testing.T) {
+	p, e := NewParser(`
+csv
+	digits§','
+	digits§commaWs
+
+commaWs
+	/^\s*,\s*/
+
+digits
+	digit+
+
+digit
+	'0' . '9'
+`)
+
+	mustFail := func(s string) *Node {
+		res, e := p.ParseString(s)
+		if e == nil {
+			t.Error("Should have failed")
+		}
+		return res
+	}
+
+	if e != nil {
+		t.Fatalf("Failed chreating parser, should be nil: %s", e)
+	}
+
+	mustGoAlright(p, t, "123123,123123,412343445, 346346,34563456 , 3456")
+	mustGoAlright(p, t, "123123,123123,41234")
+	mustGoAlright(p, t, "123123 , 123123 , 41234")
+
+	mustFail("123123,123123,")
+
 }
