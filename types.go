@@ -72,3 +72,13 @@ type parseEnviroment struct {
 }
 
 type cplxRegex regexp.Regexp
+
+type ruleKnot struct {
+	rule [2]string
+	char rune
+}
+
+type ruleRange struct {
+	rule string
+	ran  [2]int32
+}

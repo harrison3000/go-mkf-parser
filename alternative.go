@@ -359,9 +359,32 @@ func tksToRule(tks []altToken) (item, int, error) {
 
 	switch next.kind {
 	case tkRuleRange:
-		panic("not implemented yet")
+		return item{
+			kind: itemComplex,
+			cplx: mkRuleRange(tks[0].val, tks[1].val),
+		}, 2, nil
 	case tkRuleOperator:
-		panic("not implemented yet")
+		if next.val != "§" {
+			panic("how?")
+		}
+
+		var rk ruleKnot
+		rk.rule[0] = tks[0].val
+
+		switch tks[2].kind {
+		case tkRule:
+			rk.rule[1] = tks[2].val
+		case tkSingleton:
+			rk.char = tks[2].convertRune()
+		default:
+			panic("how??")
+		}
+
+		return item{
+			kind: itemComplex,
+			cplx: &rk,
+		}, 3, nil
+
 	default:
 		return item{
 			kind: itemRule,
