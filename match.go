@@ -71,16 +71,12 @@ func (pe *parseEnviroment) matchRule(rule string, input string) (*Node, bool) {
 }
 
 func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node, bool) {
-	vLen := 0
-	var kids []*Node
-
-	push := func(n *Node) {
-		vLen += len(n.val)
-		kids = append(kids, n)
+	bn := bunchOfNodes{
+		in: input,
 	}
 
 	for _, v := range alt.itens {
-		s := input[vLen:]
+		s := bn.remaining()
 
 		switch v.kind {
 		case itemSimpleRuneRange, itemComplexRange:
@@ -97,7 +93,7 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 				return nil, false
 			}
 
-			push(&Node{
+			bn.push(&Node{
 				val: s[:l],
 			})
 
@@ -107,7 +103,7 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 				return nil, false
 			}
 
-			push(&Node{
+			bn.push(&Node{
 				val: v,
 			})
 
@@ -116,14 +112,14 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 			if !ok {
 				return nil, false
 			}
-			push(n)
+			bn.push(n)
 
 		case itemLiteral:
 			ok := strings.HasPrefix(s, v.lit)
 			if !ok {
 				return nil, false
 			}
-			push(&Node{
+			bn.push(&Node{
 				val: v.lit,
 			})
 
@@ -132,11 +128,7 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 		}
 	}
 
-	val := input[:vLen]
-	return &Node{
-		childs: kids,
-		val:    val,
-	}, true
+	return bn.result(), true
 }
 
 func (cr *cplxRegex) match(in string) (string, bool) {
@@ -153,4 +145,21 @@ func (cr *cplxRegex) match(in string) (string, bool) {
 	val := in[:res[1]]
 
 	return val, true
+}
+
+func (bn *bunchOfNodes) push(n *Node) {
+	bn.nm += len(n.val)
+	bn.ns = append(bn.ns, n)
+}
+
+func (bn *bunchOfNodes) remaining() string {
+	return bn.in[bn.nm:]
+}
+
+func (bn *bunchOfNodes) result() *Node {
+	val := bn.in[:bn.nm]
+	return &Node{
+		childs: bn.ns,
+		val:    val,
+	}
 }

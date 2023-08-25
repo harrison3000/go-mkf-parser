@@ -82,3 +82,9 @@ type ruleRange struct {
 	rule string
 	ran  [2]int32
 }
+
+type bunchOfNodes struct {
+	ns []*Node
+	in string
+	nm int
+}
