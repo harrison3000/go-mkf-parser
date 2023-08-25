@@ -10,12 +10,42 @@ import (
 	"math"
 )
 
-func (k *ruleKnot) match(string) (string, bool) {
+func (k *ruleKnot) match(pe *parseEnviroment, input string) (*Node, bool) {
+	bn := bunchOfNodes{
+		in: input,
+	}
+
+	n, ok := pe.matchRule(k.rule[0], input)
+	if !ok {
+		return nil, false
+	}
+	bn.push(n)
+
 	panic("not implemented 0")
 }
 
-func (r *ruleRange) match(string) (string, bool) {
-	panic("not implemented 1")
+func (r *ruleRange) match(pe *parseEnviroment, input string) (*Node, bool) {
+	bn := bunchOfNodes{
+		in: input,
+	}
+
+	var matched int32
+	for i := 0; i < int(r.ran[1]); i++ {
+		rem := bn.remaining()
+		n, ok := pe.matchRule(r.rule, rem)
+		if !ok {
+			break
+		}
+		matched++
+		bn.push(n)
+	}
+
+	if matched < r.ran[0] {
+		return nil, false
+	}
+
+	//TODO rule name?
+	return bn.result(), true
 }
 
 func mkRuleRange(rule string, rg string) *ruleRange {
@@ -42,6 +72,7 @@ func mkRuleRange(rule string, rg string) *ruleRange {
 		} else {
 			panic("???")
 		}
+		//TODO  check if [0] <= [1]
 	}
 
 	return ret

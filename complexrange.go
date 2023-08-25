@@ -43,6 +43,6 @@ func (r runeRange) inRange(char rune) bool {
 }
 
 // match only exists to implement the matcher interface
-func (c *complexRange) match(string) (string, bool) {
+func (c *complexRange) match(*parseEnviroment, string) (*Node, bool) {
 	panic("shouldn't be here")
 }

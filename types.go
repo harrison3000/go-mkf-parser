@@ -24,7 +24,7 @@ type alternative struct {
 }
 
 type cMatcher interface {
-	match(string) (string, bool)
+	match(*parseEnviroment, string) (*Node, bool)
 }
 
 type item struct {

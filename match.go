@@ -98,14 +98,12 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 			})
 
 		case itemComplex:
-			v, ok := v.cplx.match(s)
+			n, ok := v.cplx.match(pe, s)
 			if !ok {
 				return nil, false
 			}
 
-			bn.push(&Node{
-				val: v,
-			})
+			bn.push(n)
 
 		case itemRule:
 			n, ok := pe.matchRule(v.lit, s)
@@ -131,11 +129,11 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 	return bn.result(), true
 }
 
-func (cr *cplxRegex) match(in string) (string, bool) {
+func (cr *cplxRegex) match(_ *parseEnviroment, in string) (*Node, bool) {
 	r := (*regexp.Regexp)(cr)
 	res := r.FindStringIndex(in)
 	if res == nil {
-		return "", false
+		return nil, false
 	}
 	if res[0] != 0 {
 		//regexes are checked to have a ^ anchor
@@ -144,7 +142,9 @@ func (cr *cplxRegex) match(in string) (string, bool) {
 
 	val := in[:res[1]]
 
-	return val, true
+	return &Node{
+		val: val,
+	}, true
 }
 
 func (bn *bunchOfNodes) push(n *Node) {
