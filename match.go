@@ -80,22 +80,12 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 
 		switch v.kind {
 		case itemSimpleRuneRange, itemComplexRange:
-			c, l := utf8.DecodeRuneInString(s)
-			//TODO what about the error?
-			var ok bool
-			if v.kind == itemComplexRange {
-				vc := v.cplx.(*complexRange)
-				ok = vc.inRange(c)
-			} else {
-				ok = v.runes.inRange(c)
-			}
+			n, ok := tryRune(v, s)
 			if !ok {
 				return nil, false
 			}
 
-			bn.push(&Node{
-				val: s[:l],
-			})
+			bn.push(n)
 
 		case itemComplex:
 			n, ok := v.cplx.match(pe, s)
@@ -127,6 +117,27 @@ func (pe *parseEnviroment) tryAlternative(alt alternative, input string) (*Node,
 	}
 
 	return bn.result(), true
+}
+
+func tryRune(v item, s string) (*Node, bool) {
+	//TODO what about the error rune?
+	c, l := utf8.DecodeRuneInString(s)
+
+	var ok bool
+	if v.kind == itemComplexRange {
+		vc := v.cplx.(*complexRange)
+		ok = vc.inRange(c)
+	} else {
+		ok = v.runes.inRange(c)
+	}
+	if !ok {
+		return nil, false
+	}
+
+	val := s[:l]
+	return &Node{
+		val: val,
+	}, true
 }
 
 func (cr *cplxRegex) match(_ *parseEnviroment, in string) (*Node, bool) {

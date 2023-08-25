@@ -15,13 +15,36 @@ func (k *ruleKnot) match(pe *parseEnviroment, input string) (*Node, bool) {
 		in: input,
 	}
 
-	n, ok := pe.matchRule(k.rule[0], input)
+	n, ok := pe.matchRule(k.rule, input)
 	if !ok {
 		return nil, false
 	}
 	bn.push(n)
 
-	panic("not implemented 0")
+	for {
+		var sep *Node
+		var ok bool
+		switch k.sep.kind {
+		case itemRule:
+			sep, ok = pe.matchRule(k.sep.lit, bn.remaining())
+		case itemSimpleRuneRange:
+			sep, ok = tryRune(k.sep, bn.remaining())
+		}
+		if !ok {
+			break
+		}
+
+		uRem := bn.remaining()[len(sep.val):]
+		next, ok := pe.matchRule(k.rule, uRem)
+		if !ok {
+			break
+		}
+
+		bn.push(sep)
+		bn.push(next)
+	}
+
+	return bn.result(), true
 }
 
 func (r *ruleRange) match(pe *parseEnviroment, input string) (*Node, bool) {

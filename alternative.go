@@ -369,13 +369,16 @@ func tksToRule(tks []altToken) (item, int, error) {
 		}
 
 		var rk ruleKnot
-		rk.rule[0] = tks[0].val
+		rk.rule = tks[0].val
 
 		switch tks[2].kind {
 		case tkRule:
-			rk.rule[1] = tks[2].val
+			rk.sep = item{
+				kind: itemRule,
+				lit:  tks[2].val,
+			}
 		case tkSingleton:
-			rk.char = tks[2].convertRune()
+			rk.sep, _, _ = tksToRange(tks[2:3])
 		default:
 			panic("how??")
 		}

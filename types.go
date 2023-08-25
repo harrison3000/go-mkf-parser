@@ -74,8 +74,8 @@ type parseEnviroment struct {
 type cplxRegex regexp.Regexp
 
 type ruleKnot struct {
-	rule [2]string
-	char rune
+	rule string
+	sep  item
 }
 
 type ruleRange struct {
