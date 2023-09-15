@@ -68,7 +68,7 @@ type Node struct {
 
 type parseEnviroment struct {
 	parser *Parser
-	depth  int
+	depth  int //TODO actually use this
 }
 
 type cplxRegex regexp.Regexp

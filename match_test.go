@@ -154,7 +154,7 @@ digit
 	}
 
 	if e != nil {
-		t.Fatalf("Failed chreating parser, should be nil: %s", e)
+		t.Fatalf("Failed creating parser, should be nil: %s", e)
 	}
 
 	mustGoAlright(p, t, "123123,123123,412343445, 346346,34563456 , 3456")
